@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Shapes;
 using OOP_3.Figures;
 

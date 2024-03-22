@@ -5,7 +5,6 @@ C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\OOP_3.dll
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\OOP_3.pdb
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\App.g.cs
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3_MarkupCompile.cache
-C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3_MarkupCompile.lref
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3.g.resources
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3.AssemblyInfoInputs.cache

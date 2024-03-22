@@ -15,6 +15,7 @@ public partial class MainForm
     private Point _startPoint; 
     private Point _endPoint;
     private SolidColorBrush _curColor;
+    private bool isFirstClick;
     public MainForm()
     {
         InitializeComponent();
@@ -31,23 +32,25 @@ public partial class MainForm
             _isDrawing = true;
         }
     }
-
-    private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == MouseButton.Left)
-        {
-            _isDrawing = false;
-        }
-    }
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
         if (_isDrawing)
         {
-            if (((Canvas)sender).Children.Count > 0) 
-                ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
+            if (!isFirstClick)
+            {
+                if (((Canvas)sender).Children.Count > 0)
+                    ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
+            }
             _endPoint = e.GetPosition((Canvas)sender);
             var shape = _curFactory.CreateShape(Canvas1, _startPoint, _endPoint, _curColor);
             shape.Draw(shape, _curStrategy);
+            if (isFirstClick)
+                isFirstClick = false;
+        }
+        if (e.LeftButton == MouseButtonState.Released)
+        {
+            _isDrawing = false;
+            isFirstClick = true;
         }
     }
 
@@ -69,6 +72,10 @@ public partial class MainForm
             case 0:
                 _curFactory = new LineFactory();
                 _curStrategy = new LineDrawStrategy();
+                break;
+            case 1:
+                _curFactory = new EllipseFactory();
+                _curStrategy = new EllipseDrawStrategy();
                 break;
         }
     }
