@@ -1,11 +1,14 @@
-﻿using OOP_3.Shapes;
+﻿using OOP_3.Figures;
+using System.Windows.Controls;
+using System.Windows;
+using System.Windows.Media;
 
 namespace OOP_3.Factories;
 
 public class LineFactory : IShapeFactory
 {
-    public Shape CreateShape()
+    public AbstractShape CreateShape(Canvas canvas, Point startPoint, Point endPoint, SolidColorBrush color)
     {
-        return new Line();
+        return new FigureLine(canvas, startPoint, endPoint, color);
     }
 }

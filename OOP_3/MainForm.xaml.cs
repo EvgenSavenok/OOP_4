@@ -7,46 +7,56 @@ using OOP_3.Strategies;
 
 namespace OOP_3;
 
-public partial class MainForm
+public partial class MainForm 
 {
     private bool _isDrawing;
     private IShapeFactory _curFactory;
     private IDrawStrategy _curStrategy;
     private Point _startPoint; 
     private Point _endPoint;
-    private Color _curColor;
+    private SolidColorBrush _curColor;
     public MainForm()
     {
         InitializeComponent();
          _curFactory = new LineFactory();
          _curStrategy = new LineDrawStrategy();
+         _curColor = ColorCb.SelectedItem as SolidColorBrush;
     }
 
-    private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        _startPoint = e.GetPosition((Canvas)sender);
-        _isDrawing = true;
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            _startPoint = e.GetPosition((Canvas)sender);
+            _isDrawing = true;
+        }
     }
 
-    private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        _isDrawing = false;
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            _isDrawing = false;
+        }
     }
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
         if (_isDrawing)
         {
+            if (((Canvas)sender).Children.Count > 0) 
+                ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
             _endPoint = e.GetPosition((Canvas)sender);
-            ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
+            var shape = _curFactory.CreateShape(Canvas1, _startPoint, _endPoint, _curColor);
+            shape.Draw(shape, _curStrategy);
         }
     }
 
-    private void ColorCb_MouseDown(object sender, MouseButtonEventArgs e)
+    private void ColorCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        SolidColorBrush selectedColor = ColorCb.SelectedItem as SolidColorBrush;
+        var selectedColor = ColorCb.SelectedItem as SolidColorBrush;
         if (selectedColor != null)
         {
-            _curColor = selectedColor.Color;
+            _curColor = selectedColor;
         }
     }
     

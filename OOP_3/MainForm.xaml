@@ -9,7 +9,7 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
         Title="MainForm" Height="450" Width="800">
-    <Grid x:Name = "MainGrid">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> 
             <RowDefinition Height="*"/> 
@@ -19,12 +19,12 @@
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "*"/>
             </Grid.ColumnDefinitions>
-            <ComboBox Name = "ShapeCb" Grid.Column="0" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
+            <ComboBox Grid.Column="0" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
                       SelectionChanged="ShapeCb_SelectionChanged">
                 <system:String>Линия</system:String>
             </ComboBox>
             <ComboBox Name = "ColorCb" Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
-                      MouseDown="ColorCb_MouseDown">
+                      SelectionChanged="ColorCb_SelectionChanged">
                 <ComboBox.Style>
                     <Style TargetType="ComboBox">
                         <Setter Property="ItemTemplate">
@@ -42,9 +42,11 @@
             </ComboBox>
         </Grid>
         <Border Grid.Row = "1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
-            <Canvas MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                    MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
-                    MouseMove="Canvas_MouseMove">
+            <Canvas x:Name = "Canvas1" 
+                    MouseDown="Canvas_MouseDown"
+                    MouseUp="Canvas_MouseUp"
+                    MouseMove="Canvas_MouseMove"
+                    Background="Transparent">
             </Canvas>
         </Border>
     </Grid>
