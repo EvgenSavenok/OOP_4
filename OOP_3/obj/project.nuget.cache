@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "lSIbT/pzj2ermOvHxdTLpyR27+CqbjzA4WcBakAj7QTxur+bss5YIgLTa67MxAfOEcRi9thRdkGZRoTuxSt/9A==",
+  "dgSpecHash": "CvJaSZmaSzyH7iuKwLVyw/gA8gTUf4fNaLLYzqoZoSb64/p8to7p32yxW92wKvK74RtQoL3nuXYMcOHrZHi5IA==",
   "success": true,
   "projectFilePath": "C:\\Users\\eugen\\RiderProjects\\OOP_3\\OOP_3\\OOP_3.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\eugen\\.nuget\\packages\\syncfusion.data.wpf\\25.1.35\\syncfusion.data.wpf.25.1.35.nupkg.sha512",
+    "C:\\Users\\eugen\\.nuget\\packages\\syncfusion.licensing\\25.1.35\\syncfusion.licensing.25.1.35.nupkg.sha512",
+    "C:\\Users\\eugen\\.nuget\\packages\\syncfusion.sfchart.wpf\\25.1.35\\syncfusion.sfchart.wpf.25.1.35.nupkg.sha512",
+    "C:\\Users\\eugen\\.nuget\\packages\\syncfusion.sfgrid.wpf\\25.1.35\\syncfusion.sfgrid.wpf.25.1.35.nupkg.sha512",
+    "C:\\Users\\eugen\\.nuget\\packages\\syncfusion.shared.wpf\\25.1.35\\syncfusion.shared.wpf.25.1.35.nupkg.sha512"
+  ],
   "logs": []
 }

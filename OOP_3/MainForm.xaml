@@ -3,7 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:OOP_3"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
         Title="MainForm" Height="450" Width="800">
     <Grid x:Name = "MainGrid">
@@ -16,6 +19,33 @@
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "*"/>
             </Grid.ColumnDefinitions>
+            <ComboBox Name = "ShapeCb" Grid.Column="0" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
+                      SelectionChanged="ShapeCb_SelectionChanged">
+                <system:String>Линия</system:String>
+            </ComboBox>
+            <ComboBox Name = "ColorCb" Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
+                      MouseDown="ColorCb_MouseDown">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Rectangle Fill="{Binding}" Width="20" Height="20" Margin="0,2,0,2"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ComboBox.Style>
+                <SolidColorBrush>Red</SolidColorBrush>
+                <SolidColorBrush>Green</SolidColorBrush>
+                <SolidColorBrush>Blue</SolidColorBrush>
+            </ComboBox>
         </Grid>
+        <Border Grid.Row = "1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <Canvas MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                    MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
+                    MouseMove="Canvas_MouseMove">
+            </Canvas>
+        </Border>
     </Grid>
 </Window>
