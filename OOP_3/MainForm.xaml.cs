@@ -15,6 +15,7 @@ public partial class MainForm
     private SolidColorBrush _curColor;
     private bool _isFirstClick;
     private List<Point> _listOfPoints = new List<Point>();
+    private bool isPolygonChoosed;
     public MainForm()
     {
         InitializeComponent();
@@ -42,7 +43,10 @@ public partial class MainForm
             }
             if (_isFirstClick)
                 _listOfPoints.Add(e.GetPosition((Canvas)sender));
-            _listOfPoints[1] = e.GetPosition((Canvas)sender);
+            if (isPolygonChoosed)
+                _listOfPoints.Add(e.GetPosition((Canvas)sender));
+            else
+                _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
             var shape = _curFactory.CreateShape(Canvas1, _listOfPoints, _curColor);
             shape.Draw(shape, _curStrategy);
             if (_isFirstClick)
@@ -69,16 +73,29 @@ public partial class MainForm
     {
         ComboBox comboBox = (ComboBox)sender;
         int selectedIndex = comboBox.SelectedIndex;
+        _listOfPoints.Clear();
         switch (selectedIndex)
         {
             case 0:
+                isPolygonChoosed = false;
                 _curFactory = new LineFactory();
                 _curStrategy = new LineDrawStrategy();
                 break;
             case 1:
+                isPolygonChoosed = false;
                 _curFactory = new EllipseFactory();
                 _curStrategy = new EllipseDrawStrategy();
                 break;
+            case 2:
+                isPolygonChoosed = true;
+                _curFactory = new PolygonFactory();
+                _curStrategy = new PolygonDrawStrategy();
+                break; 
+            case 3:
+                isPolygonChoosed = false;
+                _curFactory = new RectangleFactory();
+                _curStrategy = new RectangleDrawStrategy();
+                break; 
         }
     }
 }

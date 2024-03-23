@@ -20,6 +20,8 @@
                       SelectionChanged="ShapeCb_SelectionChanged">
                 <system:String>Линия</system:String>
                 <system:String>Эллипс</system:String>
+                <system:String>Многоугольник</system:String>
+                <system:String>Прямоугольник</system:String>
             </ComboBox>
             <ComboBox Name = "ColorCb" Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
                       SelectionChanged="ColorCb_SelectionChanged">
