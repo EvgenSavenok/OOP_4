@@ -7,5 +7,5 @@ namespace OOP_3.Factories;
 
 public interface IShapeFactory
 {
-    AbstractShape CreateShape(Canvas canvas, Point startPoint, Point endPoint, SolidColorBrush color);
+    AbstractShape CreateShape(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color);
 }

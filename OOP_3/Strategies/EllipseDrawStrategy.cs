@@ -12,12 +12,15 @@ public class EllipseDrawStrategy : IDrawStrategy
         var ellipse = abstractShape as FigureEllipse;
         var canvas = ellipse.GetCanvas();
         var color = ellipse.GetColor();
-        Rect rect = new Rect(ellipse.GetStartPoint(), ellipse.GetEndPoint());
+        List<Point> listOfPoints = ellipse.GetListOfPoints();
+        Point startPoint = listOfPoints[0];
+        Point endPont = listOfPoints[1];
+        Rect rect = new Rect(startPoint, endPont);
         EllipseGeometry ellipseGeometry = new EllipseGeometry(rect);
         Path path = new Path
         {
             Stroke = color,
-            StrokeThickness = 2,
+            StrokeThickness = 1,
             Data = ellipseGeometry
         };
         canvas.Children.Add(path);

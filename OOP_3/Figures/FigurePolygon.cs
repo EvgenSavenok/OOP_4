@@ -5,12 +5,12 @@ using System.Windows.Media;
 
 namespace OOP_3.Figures;
 
-public class FigureLine : AbstractShape
+public class FigurePolygon : AbstractShape
 {
     private Canvas _canvas { get; }
     private List<Point> _listOfPoints { get; }
     private SolidColorBrush _color { get; }
-    public FigureLine(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public FigurePolygon(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
         _listOfPoints = listOfPoints;
         _canvas = canvas;
@@ -29,8 +29,8 @@ public class FigureLine : AbstractShape
     {
         return _color;
     }
-    public override void Draw(AbstractShape line, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape polygon, IDrawStrategy polygonStrategy)
     {
-        lineStrategy.DrawShape(line);
+        polygonStrategy.DrawShape(polygon);
     }
 }

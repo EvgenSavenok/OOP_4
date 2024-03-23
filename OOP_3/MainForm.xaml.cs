@@ -12,23 +12,22 @@ public partial class MainForm
     private bool _isDrawing;
     private IShapeFactory _curFactory;
     private IDrawStrategy _curStrategy;
-    private Point _startPoint; 
-    private Point _endPoint;
     private SolidColorBrush _curColor;
-    private bool isFirstClick;
+    private bool _isFirstClick;
+    private List<Point> _listOfPoints = new List<Point>();
     public MainForm()
     {
         InitializeComponent();
          _curFactory = new LineFactory();
          _curStrategy = new LineDrawStrategy();
-         _curColor = ColorCb.SelectedItem as SolidColorBrush;
+         _curColor = Brushes.Red;
     }
 
     private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            _startPoint = e.GetPosition((Canvas)sender);
+            _listOfPoints.Add(e.GetPosition((Canvas)sender));
             _isDrawing = true;
         }
     }
@@ -36,21 +35,24 @@ public partial class MainForm
     {
         if (_isDrawing)
         {
-            if (!isFirstClick)
+            if (!_isFirstClick)
             {
                 if (((Canvas)sender).Children.Count > 0)
                     ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
             }
-            _endPoint = e.GetPosition((Canvas)sender);
-            var shape = _curFactory.CreateShape(Canvas1, _startPoint, _endPoint, _curColor);
+            if (_isFirstClick)
+                _listOfPoints.Add(e.GetPosition((Canvas)sender));
+            _listOfPoints[1] = e.GetPosition((Canvas)sender);
+            var shape = _curFactory.CreateShape(Canvas1, _listOfPoints, _curColor);
             shape.Draw(shape, _curStrategy);
-            if (isFirstClick)
-                isFirstClick = false;
+            if (_isFirstClick)
+                _isFirstClick = false;
         }
         if (e.LeftButton == MouseButtonState.Released)
         {
             _isDrawing = false;
-            isFirstClick = true;
+            _isFirstClick = true;
+            _listOfPoints.Clear();
         }
     }
 

@@ -8,24 +8,18 @@ namespace OOP_3.Figures;
 public class FigureEllipse : AbstractShape
 {
     private Canvas Canvas { get; }
-    private Point StartPoint { get; }
-    private Point EndPoint { get; }
+    private List<Point> _listOfPoints { get; }
     private SolidColorBrush Color { get; }
-    public FigureEllipse(Canvas canvas, Point startPoint, Point endPoint, SolidColorBrush color)
+    public FigureEllipse(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
-        StartPoint = startPoint;
-        EndPoint = endPoint;
+        _listOfPoints = listOfPoints;
         Canvas = canvas;
         Color = color;
     }
-    public Point GetStartPoint()
-    {
-        return StartPoint;
-    }
 
-    public Point GetEndPoint()
+    public List<Point> GetListOfPoints()
     {
-        return EndPoint;
+        return _listOfPoints;
     }
 
     public Canvas GetCanvas()

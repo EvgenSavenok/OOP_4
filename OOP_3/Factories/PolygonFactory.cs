@@ -5,10 +5,10 @@ using System.Windows.Media;
 
 namespace OOP_3.Factories;
 
-public class EllipseFactory : IShapeFactory
+public class PolygonFactory : IShapeFactory
 {
     public AbstractShape CreateShape(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
-        return new FigureEllipse(canvas, listOfPoints, color);
+        return new FigurePolygon(canvas, listOfPoints, color);
     }
 }
