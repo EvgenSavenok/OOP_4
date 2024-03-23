@@ -7,30 +7,30 @@ namespace OOP_3.Figures;
 
 public class FigurePolygon : AbstractShape
 {
-    private Canvas _canvas { get; }
-    private List<Point> _listOfPoints { get; }
-    private SolidColorBrush _color { get; }
+    private Canvas Canvas { get; }
+    private List<Point> ListOfPoints { get; }
+    private SolidColorBrush Color { get; }
     public FigurePolygon(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
-        _listOfPoints = listOfPoints;
-        _canvas = canvas;
-        _color = color;
+        ListOfPoints = listOfPoints;
+        Canvas = canvas;
+        Color = color;
     }
     public List<Point> GetListOfPoints()
     {
-        return _listOfPoints;
+        return ListOfPoints;
     }
 
     public Canvas GetCanvas()
     {
-        return _canvas;
+        return Canvas;
     }
     public SolidColorBrush GetColor()
     {
-        return _color;
+        return Color;
     }
-    public override void Draw(AbstractShape polygon, IDrawStrategy polygonStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
     {
-        polygonStrategy.DrawShape(polygon);
+        circleStrategy.DrawShape(circle);
     }
 }

@@ -29,8 +29,8 @@ public class FigureRectangle : FigurePolygon
     {
         return _color;
     }
-    public override void Draw(AbstractShape rectangle, IDrawStrategy rectangleStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
     {
-        rectangleStrategy.DrawShape(rectangle);
+        circleStrategy.DrawShape(circle);
     }
 }

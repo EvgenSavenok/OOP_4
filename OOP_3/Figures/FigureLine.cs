@@ -29,8 +29,8 @@ public class FigureLine : AbstractShape
     {
         return _color;
     }
-    public override void Draw(AbstractShape line, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
     {
-        lineStrategy.DrawShape(line);
+        circleStrategy.DrawShape(circle);
     }
 }

@@ -4,5 +4,5 @@ namespace OOP_3.Figures;
 
 public abstract class AbstractShape
 {
-    public abstract void Draw(AbstractShape shape, IDrawStrategy shapeStrategy);
+    public abstract void Draw(AbstractShape circle, IDrawStrategy circleStrategy);
 }

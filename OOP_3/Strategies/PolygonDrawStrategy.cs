@@ -13,15 +13,11 @@ public class PolygonDrawStrategy : IDrawStrategy
         var canvas = polygon.GetCanvas();
         var color = polygon.GetColor();
         List<Point> listOfPoints = polygon.GetListOfPoints();
-        /*Point startPoint = listOfPoints[0];
-        Point endPont = listOfPoints[1];
-        LineGeometry lineGeometry = new LineGeometry(startPoint, endPont);
-        Path path = new Path
+        var polygonFigure = new Polygon {StrokeThickness = 1, Fill = color};
+        foreach (var point in listOfPoints)
         {
-            Stroke = color,
-            StrokeThickness = 1,
-            Data = lineGeometry
-        };
-        canvas.Children.Add(path);*/
+            polygonFigure.Points.Add(point);
+        }
+        canvas.Children.Add(polygonFigure);
     }
 }

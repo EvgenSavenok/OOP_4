@@ -5,25 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="MainForm" Height="450" Width="800">
+        Title="Paint" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> 
-            <RowDefinition Height="*"/> 
+             <RowDefinition Height="Auto"/>  
+             <RowDefinition Height="*"/>  
         </Grid.RowDefinitions>
         <Grid Grid.Row = "0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "*"/>
+                <ColumnDefinition Width = "*"/>
             </Grid.ColumnDefinitions>
             <ComboBox Grid.Column="0" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
-                      SelectionChanged="ShapeCb_SelectionChanged">
+                      SelectionChanged="ShapeCb_SelectionChanged"
+                      Width = "Auto"
+                      FontSize="16">
                 <system:String>Линия</system:String>
                 <system:String>Эллипс</system:String>
                 <system:String>Многоугольник</system:String>
                 <system:String>Прямоугольник</system:String>
             </ComboBox>
-            <ComboBox Name = "ColorCb" Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
+            <Button Grid.Column = "1" HorizontalAlignment="Left" Margin = "10"
+                    Background="White" Content = "Очистить"
+                    Click = "ClearBtn_Click"
+                    Width = "Auto" 
+                    FontSize="16"></Button>
+            <ComboBox Name = "ColorCb" Grid.Column="2" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
                       SelectionChanged="ColorCb_SelectionChanged">
                 <ComboBox.Style>
                     <Style TargetType="ComboBox">
@@ -36,11 +44,11 @@
                         </Setter>
                     </Style>
                 </ComboBox.Style>
-                <SolidColorBrush>Red</SolidColorBrush>
+                <SolidColorBrush>Black</SolidColorBrush>
                 <SolidColorBrush>Green</SolidColorBrush>
                 <SolidColorBrush>Blue</SolidColorBrush>
                 <SolidColorBrush>Pink</SolidColorBrush>
-                <SolidColorBrush>Black</SolidColorBrush>
+                <SolidColorBrush>Red</SolidColorBrush>
                 <SolidColorBrush>Purple</SolidColorBrush>
                 <SolidColorBrush>Yellow</SolidColorBrush>
             </ComboBox>

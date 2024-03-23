@@ -8,18 +8,18 @@ namespace OOP_3.Figures;
 public class FigureEllipse : AbstractShape
 {
     private Canvas Canvas { get; }
-    private List<Point> _listOfPoints { get; }
+    private List<Point> ListOfPoints { get; }
     private SolidColorBrush Color { get; }
     public FigureEllipse(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
-        _listOfPoints = listOfPoints;
+        ListOfPoints = listOfPoints;
         Canvas = canvas;
         Color = color;
     }
 
     public List<Point> GetListOfPoints()
     {
-        return _listOfPoints;
+        return ListOfPoints;
     }
 
     public Canvas GetCanvas()
@@ -30,8 +30,8 @@ public class FigureEllipse : AbstractShape
     {
         return Color;
     }
-    public override void Draw(AbstractShape ellipse, IDrawStrategy ellipseStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
     {
-        ellipseStrategy.DrawShape(ellipse);
+        circleStrategy.DrawShape(circle);
     }
 }
