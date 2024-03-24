@@ -13,4 +13,9 @@
       <PackageReference Include="Syncfusion.SfGrid.WPF" Version="25.1.35" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Images\Cursor.png" />
+      <Resource Include="Images\Cursor.png" />
+    </ItemGroup>
+
 </Project>

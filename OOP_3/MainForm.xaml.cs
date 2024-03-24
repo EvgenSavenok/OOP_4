@@ -1,11 +1,14 @@
 ﻿using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using OOP_3.Factories;
 using OOP_3.Strategies;
+using OOP_3.Figures;
 
 namespace OOP_3;
 
@@ -18,6 +21,7 @@ public partial class MainForm
     private bool _isFirstClick;
     private List<Point> _listOfPoints = new List<Point>();
     private bool _isPolygonChoosed;
+    private AbstractShape _selectedShape;
 
     private void LoadIcon()
     {
@@ -26,12 +30,27 @@ public partial class MainForm
         var bitmap = new BitmapImage(uri);
         Icon = bitmap;
     }
+    [DllImport("user32.dll")]
+    private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")]
+    private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+    private const int GwlStyle = -16;
+    private const int WsMaximizeBox = 0x10000;
+
+    private void Window_SourceInitialized(object sender, EventArgs e)
+    {
+        var hwnd = new WindowInteropHelper((Window)sender).Handle;
+        var value = GetWindowLong(hwnd, GwlStyle);
+        SetWindowLong(hwnd, GwlStyle, value & ~WsMaximizeBox);
+    }
     public MainForm()
     {
         InitializeComponent();
          _curFactory = new LineFactory();
          _curStrategy = new LineDrawStrategy();
          _curColor = Brushes.Black;
+         WindowState = WindowState.Maximized;
          LoadIcon();
     }
 
@@ -52,6 +71,21 @@ public partial class MainForm
                 _listOfPoints.Clear();
             }
         }
+        foreach (var shape in Canvas1.Children)
+        {
+            if (shape is AbstractShape && ((FrameworkElement)shape).IsMouseOver)
+            {
+                // Если клик попал на фигуру, выделяем ее
+                _selectedShape = (AbstractShape)shape;
+                // Меняем свойства выделенной фигуры, например, цвет обводки
+                //_selectedShape.Stroke = Brushes.Red;
+                // Выход из цикла, так как фигура уже выбрана
+                return;
+            }
+        }
+
+        // Если клик не попал ни на одну фигуру, сбрасываем выбор
+        _selectedShape = null;
     }
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {

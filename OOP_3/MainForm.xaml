@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="Paint" Height="450" Width="800">
+        Title="Paint" Height="450" Width="800"
+        SourceInitialized="Window_SourceInitialized">
     <Grid>
         <Grid.RowDefinitions>
              <RowDefinition Height="Auto"/>  
@@ -13,6 +14,7 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row = "0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "*"/>
                 <ColumnDefinition Width = "*"/>
@@ -26,12 +28,15 @@
                 <system:String>Многоугольник</system:String>
                 <system:String>Прямоугольник</system:String>
             </ComboBox>
-            <Button Grid.Column = "1" HorizontalAlignment="Left" Margin = "10"
+            <Button Grid.Column="1" HorizontalAlignment="Left" Margin="10">
+                <Image Source="/Images/Cursor.png"></Image>
+            </Button>
+            <Button Grid.Column = "2" HorizontalAlignment="Left" Margin = "10"
                     Background="White" Content = "Очистить"
                     Click = "ClearBtn_Click"
-                    Width = "Auto" 
+                    Width = "Auto"
                     FontSize="16"></Button>
-            <ComboBox Name = "ColorCb" Grid.Column="2" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
+            <ComboBox Name = "ColorCb" Grid.Column="3" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
                       SelectionChanged="ColorCb_SelectionChanged">
                 <ComboBox.Style>
                     <Style TargetType="ComboBox">
