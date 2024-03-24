@@ -22,6 +22,7 @@ public partial class MainForm
     private List<Point> _listOfPoints = new List<Point>();
     private bool _isPolygonChoosed;
     private AbstractShape _selectedShape;
+    private bool _isCursorChoosed;
 
     private void LoadIcon()
     {
@@ -47,8 +48,7 @@ public partial class MainForm
     public MainForm()
     {
         InitializeComponent();
-         _curFactory = new LineFactory();
-         _curStrategy = new LineDrawStrategy();
+        _isCursorChoosed = true;
          _curColor = Brushes.Black;
          WindowState = WindowState.Maximized;
          LoadIcon();
@@ -59,12 +59,12 @@ public partial class MainForm
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             _listOfPoints.Add(e.GetPosition((Canvas)sender));
-            if (!_isPolygonChoosed)
+            if (!_isPolygonChoosed && !_isCursorChoosed)
                 _isDrawing = true;
         }
         if (e.RightButton == MouseButtonState.Pressed)
         {
-            if (_isPolygonChoosed)
+            if (_isPolygonChoosed && !_isCursorChoosed)
             {
                 var shape = _curFactory.CreateShape(Canvas1, _listOfPoints, _curColor);
                 shape.Draw(shape, _curStrategy);
@@ -86,6 +86,18 @@ public partial class MainForm
 
         // Если клик не попал ни на одну фигуру, сбрасываем выбор
         _selectedShape = null;
+    }
+    private void CursorBtn_Click(object sender, EventArgs e)
+    {
+        _isCursorChoosed = _isCursorChoosed ? false : true;
+        Button clickedButton = sender as Button;
+        if (!_isCursorChoosed)
+            clickedButton.BorderBrush = Brushes.Transparent;
+        else
+        {
+            _listOfPoints.Clear();
+            clickedButton.BorderBrush = Brushes.Blue;
+        }
     }
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
@@ -128,7 +140,7 @@ public partial class MainForm
         Canvas1.Children.Clear();
         _listOfPoints.Clear();
     }
-    private void ShapeCb_SelectionChanged(object sender, SelectionChangedEventArgs  e)
+    private void ShapeCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ComboBox comboBox = (ComboBox)sender;
         int selectedIndex = comboBox.SelectedIndex;

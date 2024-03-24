@@ -28,14 +28,17 @@
                 <system:String>Многоугольник</system:String>
                 <system:String>Прямоугольник</system:String>
             </ComboBox>
-            <Button Grid.Column="1" HorizontalAlignment="Left" Margin="10">
+            <Button Grid.Column="1" HorizontalAlignment="Left" Margin="10"
+                    Click="CursorBtn_Click"
+                    BorderBrush="Blue">
                 <Image Source="/Images/Cursor.png"></Image>
             </Button>
             <Button Grid.Column = "2" HorizontalAlignment="Left" Margin = "10"
                     Background="White" Content = "Очистить"
                     Click = "ClearBtn_Click"
                     Width = "Auto"
-                    FontSize="16"></Button>
+                    FontSize="16">
+            </Button>
             <ComboBox Name = "ColorCb" Grid.Column="3" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
                       SelectionChanged="ColorCb_SelectionChanged">
                 <ComboBox.Style>
