@@ -28,7 +28,7 @@
                 <system:String>Многоугольник</system:String>
                 <system:String>Прямоугольник</system:String>
             </ComboBox>
-            <Button Grid.Column="1" HorizontalAlignment="Left" Margin="10"
+            <Button x:Name = "CursorBtn" Grid.Column="1" HorizontalAlignment="Left" Margin="10"
                     Click="CursorBtn_Click"
                     BorderBrush="Blue">
                 <Image Source="/Images/Cursor.png"></Image>
@@ -62,9 +62,12 @@
             </ComboBox>
         </Grid>
         <Border Grid.Row = "1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
-            <Canvas x:Name = "Canvas1" 
+            <Canvas x:Name = "Canvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"
+                    MouseUp="Canvas_MouseUp"
+                    KeyUp="Canvas_KeyDown"
+                    Focusable="True"
                     Background="Transparent">
             </Canvas>
         </Border>

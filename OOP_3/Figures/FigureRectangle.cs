@@ -5,32 +5,33 @@ using System.Windows.Media;
 
 namespace OOP_3.Figures;
 
+[Serializable]
 public class FigureRectangle : FigurePolygon
 {
-    private Canvas _canvas { get; }
-    private List<Point> _listOfPoints { get; }
-    private SolidColorBrush _color { get; }
+    private Canvas Canvas { get; }
+    private List<Point> ListOfPoints { get; }
+    private SolidColorBrush Color { get; set; }
     public FigureRectangle(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color) : base(canvas, listOfPoints, color)
     {
-        _listOfPoints = listOfPoints;
-        _canvas = canvas;
-        _color = color;
+        ListOfPoints = listOfPoints;
+        Canvas = canvas;
+        Color = color;
     }
     public List<Point> GetListOfPoints()
     {
-        return _listOfPoints;
+        return ListOfPoints;
     }
 
     public Canvas GetCanvas()
     {
-        return _canvas;
+        return Canvas;
     }
     public SolidColorBrush GetColor()
     {
-        return _color;
+        return Color;
     }
-    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy lineStrategy)
     {
-        circleStrategy.DrawShape(circle);
+        lineStrategy.DrawShape(circle);
     }
 }

@@ -23,6 +23,7 @@ public class RectangleDrawStrategy : IDrawStrategy
             StrokeThickness = 1,
             Data = lineGeometry
         };
+        path.Tag = canvas.Children.Count;
         canvas.Children.Add(path);
     }
 }

@@ -18,6 +18,7 @@ public class PolygonDrawStrategy : IDrawStrategy
         {
             polygonFigure.Points.Add(point);
         }
+        polygonFigure.Tag = canvas.Children.Count;
         canvas.Children.Add(polygonFigure);
     }
 }

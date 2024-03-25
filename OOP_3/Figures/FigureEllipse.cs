@@ -5,11 +5,12 @@ using System.Windows.Media;
 
 namespace OOP_3.Figures;
 
+[Serializable]
 public class FigureEllipse : AbstractShape
 {
     private Canvas Canvas { get; }
     private List<Point> ListOfPoints { get; }
-    private SolidColorBrush Color { get; }
+    private SolidColorBrush Color { get; set; }
     public FigureEllipse(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
     {
         ListOfPoints = listOfPoints;
@@ -30,8 +31,8 @@ public class FigureEllipse : AbstractShape
     {
         return Color;
     }
-    public override void Draw(AbstractShape circle, IDrawStrategy circleStrategy)
+    public override void Draw(AbstractShape circle, IDrawStrategy lineStrategy)
     {
-        circleStrategy.DrawShape(circle);
+        lineStrategy.DrawShape(circle);
     }
 }

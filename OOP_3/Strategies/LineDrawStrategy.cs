@@ -13,14 +13,16 @@ public class LineDrawStrategy : IDrawStrategy
         var canvas = line.GetCanvas();
         var color = line.GetColor();
         List<Point> listOfPoints = line.GetListOfPoints();
-        Point startPoint = listOfPoints[0];
-        Point endPont = listOfPoints[1];
+        Point startPoint, endPont;
+        startPoint = listOfPoints[0];
+        endPont = listOfPoints[1];
         LineGeometry lineGeometry = new LineGeometry(startPoint, endPont);
         Path path = new Path
         {
             Stroke = color,
-            StrokeThickness = 1,
-            Data = lineGeometry
+            StrokeThickness = 5,
+            Data = lineGeometry,
+            Tag = line.CanvasIndex
         };
         canvas.Children.Add(path);
     }

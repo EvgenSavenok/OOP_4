@@ -23,6 +23,7 @@ public class EllipseDrawStrategy : IDrawStrategy
             StrokeThickness = 1,
             Data = ellipseGeometry
         };
+        path.Tag = canvas.Children.Count;
         canvas.Children.Add(path);
     }
 }
