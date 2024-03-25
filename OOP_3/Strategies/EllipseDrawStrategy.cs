@@ -20,10 +20,10 @@ public class EllipseDrawStrategy : IDrawStrategy
         Path path = new Path
         {
             Stroke = color,
-            StrokeThickness = 1,
-            Data = ellipseGeometry
+            StrokeThickness = 5,
+            Data = ellipseGeometry,
+            Tag = ellipse.CanvasIndex
         };
-        path.Tag = canvas.Children.Count;
         canvas.Children.Add(path);
     }
 }

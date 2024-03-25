@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using OOP_3.Factories;
@@ -24,7 +25,7 @@ public partial class MainForm
     private bool _isPolygonSelected;
     private bool _isCursorSelected;
     private List<AbstractShape> _abstractShapes = new();
-    private MouseButtonEventArgs eForShapeRemoving;
+    private Shape _selectedShape;
     private const int GwlStyle = -16;
     private const int WsMaximizeBox = 0x10000;
     readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new()
@@ -75,31 +76,23 @@ public partial class MainForm
         LoadIcon();
     }
 
-    private void DrawShape()
+    private AbstractShape DrawShape()
     {
         var shape = _curFactory.CreateShape(Canvas, _listOfPoints, _curColor);
         shape.Draw(shape, _curStrategy);
+        return shape;
     }
 
     private void DeleteShape(KeyEventArgs e)
     {
-        if (e.Key == Key.Delete && _isCursorSelected)
+        if (e.Key == Key.Delete && _isCursorSelected && _selectedShape != null)
         {
-            if (eForShapeRemoving is { ClickCount: 1, OriginalSource: Shape shape })//pattern matching
+            if (_abstractShapes.Count > 0)
             {
-                int tag = (int)shape.Tag;
-                for (int i = tag + 1; i < Canvas.Children.Count; i++)
-                {
-                    if (Canvas.Children[i] is Shape item)
-                    {
-                        int tagTemp = (int)item.Tag;
-                        item.Tag = --tagTemp;
-                    }
-                }
-                Canvas.Children.RemoveAt(tag);
-                for (int i = tag + 1; i < _abstractShapes.Count; i++)
+                Canvas.Children.Remove(_selectedShape);
+                for (int i = (int)_selectedShape.Tag + 1; i < _abstractShapes.Count; i++)
                     _abstractShapes[i].CanvasIndex--;
-                _abstractShapes.RemoveAt(tag);
+                _abstractShapes.RemoveAt((int)_selectedShape.Tag);
             }
         }
     }
@@ -108,23 +101,38 @@ public partial class MainForm
         DeleteShape(e);
     }
 
-    private void SelectShape()
+    private void SelectShape(object sender)
     {
-        
+        if (sender is Shape selectedShape)
+        {
+            var shadowEffect = new DropShadowEffect
+            {
+                BlurRadius = 10,
+                ShadowDepth = 3,
+                RenderingBias = RenderingBias.Quality,
+                Color = Colors.DarkRed
+            };
+            selectedShape.Effect = shadowEffect;
+            foreach (var child in Canvas.Children)
+            {
+                if (child is Shape shape && shape != selectedShape && shape.Effect != null)
+                    shape.Effect = null;
+            }
+        }
     }
     private void CheckOnShapeSelection(object sender, MouseButtonEventArgs e)
     {
         if (_isCursorSelected)
         {
-            if (e is { ClickCount: 1, OriginalSource: Shape shape })
+            if (e is { OriginalSource: Shape shape })
             {
                 int tag = (int)shape.Tag;
-                for (int i = tag + 1; i < Canvas.Children.Count; i++)
+                for (int i = tag; i < Canvas.Children.Count; i++)
                 {
-                    if (Canvas.Children[i] is Shape item)
+                    if (Canvas.Children[i] is Shape)
                     {
-                        eForShapeRemoving = e;
-                        SelectShape();
+                        _selectedShape = shape;
+                        SelectShape(shape);
                     }
                 }
             }
@@ -147,8 +155,9 @@ public partial class MainForm
         {
             if (_isPolygonSelected && !_isCursorSelected && _listOfPoints.Count > 2)
             {
-                DrawShape();
+                var shape = DrawShape();
                 _listOfPoints.Clear();
+                _abstractShapes.Add(shape);
             }
         }
     }
@@ -162,13 +171,19 @@ public partial class MainForm
     {
         _isCursorSelected = _isCursorSelected ? false : true;
         if (!_isCursorSelected)
+        {
             CursorBtn.BorderBrush = Brushes.Transparent;
+            CursorBtn.BorderThickness = new Thickness(1);
+        }
         else
+        {
             CursorBtn.BorderBrush = Brushes.Blue;
+            CursorBtn.BorderThickness = new Thickness(3);
+        }
         _listOfPoints.Clear();
     }
 
-    private void Canvas_MouseUp(object sender, MouseEventArgs e)
+    private void Canvas_MouseUp(object sender, MouseEventArgs e, AbstractShape shape)
     {
         if (e.LeftButton == MouseButtonState.Released)
         {
@@ -176,6 +191,7 @@ public partial class MainForm
             _isFirstClick = true;
             if (!_isPolygonSelected)
                 _listOfPoints.Clear();
+            _abstractShapes.Add(shape);
         }
     }
     private void RemoveLastChild(object sender)
@@ -185,19 +201,24 @@ public partial class MainForm
     }
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
+        AbstractShape shape = null;
         if (_isDrawing)
         {
             if (!_isFirstClick)
+            {
                 RemoveLastChild(sender);
-            if (_isFirstClick)
+            }
+            else
+            {
                 _listOfPoints.Add(e.GetPosition((Canvas)sender));
+                _isFirstClick = false;
+            }
             if (_listOfPoints.Count > 1)
             {
                 _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
-                DrawShape();
-                if (_isFirstClick)
-                    _isFirstClick = false;
+                shape = DrawShape();
             }
+            Canvas_MouseUp(sender, e, shape);
         }
     }
 

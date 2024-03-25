@@ -20,10 +20,10 @@ public class RectangleDrawStrategy : IDrawStrategy
         Path path = new Path
         {
             Stroke = color,
-            StrokeThickness = 1,
-            Data = lineGeometry
+            StrokeThickness = 5,
+            Data = lineGeometry,
+            Tag = rectangle.CanvasIndex
         };
-        path.Tag = canvas.Children.Count;
         canvas.Children.Add(path);
     }
 }

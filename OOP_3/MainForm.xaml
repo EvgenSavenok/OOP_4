@@ -9,7 +9,7 @@
         SourceInitialized="Window_SourceInitialized">
     <Grid>
         <Grid.RowDefinitions>
-             <RowDefinition Height="Auto"/>  
+             <RowDefinition Height="0.07*"/>  
              <RowDefinition Height="*"/>  
         </Grid.RowDefinitions>
         <Grid Grid.Row = "0">
@@ -30,7 +30,8 @@
             </ComboBox>
             <Button x:Name = "CursorBtn" Grid.Column="1" HorizontalAlignment="Left" Margin="10"
                     Click="CursorBtn_Click"
-                    BorderBrush="Blue">
+                    BorderBrush="Blue"
+                    BorderThickness="3">
                 <Image Source="/Images/Cursor.png"></Image>
             </Button>
             <Button Grid.Column = "2" HorizontalAlignment="Left" Margin = "10"
@@ -65,7 +66,6 @@
             <Canvas x:Name = "Canvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"
-                    MouseUp="Canvas_MouseUp"
                     KeyUp="Canvas_KeyDown"
                     Focusable="True"
                     Background="Transparent">
