@@ -2,19 +2,19 @@
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace OOP_3.Figures;
 
 [Serializable]
 public class FigureEllipse : AbstractShape
 {
-    private Canvas Canvas { get; }
     private List<Point> ListOfPoints { get; }
     private SolidColorBrush Color { get; set; }
-    public FigureEllipse(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public FigureEllipse(List<Point> listOfPoints, SolidColorBrush color)
+    : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;
-        Canvas = canvas;
         Color = color;
     }
 
@@ -22,17 +22,23 @@ public class FigureEllipse : AbstractShape
     {
         return ListOfPoints;
     }
-
-    public Canvas GetCanvas()
-    {
-        return Canvas;
-    }
     public SolidColorBrush GetColor()
     {
         return Color;
     }
-    public override void Draw(AbstractShape circle, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape ellipse, IDrawStrategy ellipseStrategy, Canvas canvas)
     {
-        lineStrategy.DrawShape(circle);
+        Shape shape = ellipseStrategy.DrawShape(ellipse);
+        if (CanvasIndex < 0)
+        {
+            CanvasIndex = canvas.Children.Count;
+            canvas.Children.Add(shape);
+        }
+        else
+        {
+            canvas.Children.RemoveAt(CanvasIndex);
+            canvas.Children.Insert(CanvasIndex, shape);
+        }
+        shape.Tag = CanvasIndex;
     }
 }

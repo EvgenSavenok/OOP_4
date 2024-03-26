@@ -7,8 +7,8 @@ namespace OOP_3.Factories;
 
 public class EllipseFactory : IShapeFactory
 {
-    public AbstractShape CreateShape(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public AbstractShape CreateShape(List<Point> listOfPoints, SolidColorBrush color)
     {
-        return new FigureEllipse(canvas, listOfPoints, color);
+        return new FigureEllipse(listOfPoints, color);
     }
 }

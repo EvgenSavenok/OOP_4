@@ -2,36 +2,43 @@
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace OOP_3.Figures;
 
 [Serializable]
 public class FigurePolygon : AbstractShape
 {
-    private Canvas Canvas { get; }
     private List<Point> ListOfPoints { get; }
     private SolidColorBrush Color { get; set; }
-    public FigurePolygon(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public FigurePolygon(List<Point> listOfPoints, SolidColorBrush color)
+        : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;
-        Canvas = canvas;
         Color = color;
     }
     public List<Point> GetListOfPoints()
     {
         return ListOfPoints;
     }
-
-    public Canvas GetCanvas()
-    {
-        return Canvas;
-    }
+    
     public SolidColorBrush GetColor()
     {
         return Color;
     }
-    public override void Draw(AbstractShape circle, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape polygon, IDrawStrategy polygonStrategy, Canvas canvas)
     {
-        lineStrategy.DrawShape(circle);
+        Shape shape = polygonStrategy.DrawShape(polygon);
+        if (CanvasIndex < 0)
+        {
+            CanvasIndex = canvas.Children.Count;
+            canvas.Children.Add(shape);
+        }
+        else
+        {
+            canvas.Children.RemoveAt(CanvasIndex);
+            canvas.Children.Insert(CanvasIndex, shape);
+        }
+        shape.Tag = CanvasIndex;
     }
 }

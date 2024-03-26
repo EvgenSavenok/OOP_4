@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Text;
 
 namespace OOP_3.Figures;
@@ -9,31 +10,35 @@ namespace OOP_3.Figures;
 [Serializable]
 public class FigureLine : AbstractShape
 {
-    private Canvas Canvas { get; }
     private List<Point> ListOfPoints { get; }
     private SolidColorBrush Color { get; set; }
-    public override object TagShape => "0";
-    public FigureLine(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public FigureLine(List<Point> listOfPoints, SolidColorBrush color) 
+        : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;
-        Canvas = canvas;
         Color = color;
     }
     public List<Point> GetListOfPoints()
     {
         return ListOfPoints;
     }
-
-    public Canvas GetCanvas()
-    {
-        return Canvas;
-    }
     public SolidColorBrush GetColor()
     {
         return Color;
     }
-    public override void Draw(AbstractShape line, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape line, IDrawStrategy lineStrategy, Canvas canvas)
     {
-        lineStrategy.DrawShape(line);
+        Shape shape = lineStrategy.DrawShape(line);
+        if (CanvasIndex < 0)
+        {
+            CanvasIndex = canvas.Children.Count;
+            canvas.Children.Add(shape);
+        }
+        else
+        {
+            canvas.Children.RemoveAt(CanvasIndex);
+            canvas.Children.Insert(CanvasIndex, shape);
+        }
+        shape.Tag = CanvasIndex;
     }
 }

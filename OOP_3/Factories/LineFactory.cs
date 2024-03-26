@@ -7,8 +7,8 @@ namespace OOP_3.Factories;
 
 public class LineFactory : IShapeFactory
 {
-    public AbstractShape CreateShape(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color)
+    public AbstractShape CreateShape(List<Point> listOfPoints, SolidColorBrush color)
     {
-        return new FigureLine(canvas, listOfPoints, color);
+        return new FigureLine(listOfPoints, color);
     }
 }

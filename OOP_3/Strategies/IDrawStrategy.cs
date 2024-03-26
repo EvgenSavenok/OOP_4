@@ -1,8 +1,9 @@
 ﻿using OOP_3.Figures;
+using System.Windows.Shapes;
 
 namespace OOP_3.Strategies;
 
 public interface IDrawStrategy
 {
-    void DrawShape(AbstractShape abstractShape);
+    Shape DrawShape(AbstractShape abstractShape);
 }

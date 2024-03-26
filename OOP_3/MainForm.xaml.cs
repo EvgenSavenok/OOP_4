@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,6 +13,10 @@ using OOP_3.Factories;
 using OOP_3.Strategies;
 using OOP_3.Figures;
 using Path = System.IO.Path;
+using Microsoft.Win32;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace OOP_3;
 
@@ -42,6 +48,8 @@ public partial class MainForm
         { 2, new PolygonDrawStrategy() },
         { 3, new RectangleDrawStrategy() }
     };
+    readonly List<IDrawStrategy> _strategiesForShapes = new ();
+    
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
     
@@ -67,6 +75,8 @@ public partial class MainForm
     {
         _isCursorSelected = true;
         _curColor = Brushes.Black;
+        // var shapeEditorWindow = new ShapeEditor();
+        // shapeEditorWindow.ShowDialog();
     }
     public MainForm()
     {
@@ -78,8 +88,9 @@ public partial class MainForm
 
     private AbstractShape DrawShape()
     {
-        var shape = _curFactory.CreateShape(Canvas, _listOfPoints, _curColor);
-        shape.Draw(shape, _curStrategy);
+        /////////////////////////////////////////подумай
+        var shape = _curFactory.CreateShape(new (_listOfPoints), _curColor);
+        shape.Draw(shape, _curStrategy, Canvas);
         return shape;
     }
 
@@ -89,10 +100,20 @@ public partial class MainForm
         {
             if (_abstractShapes.Count > 0)
             {
-                Canvas.Children.Remove(_selectedShape);
-                for (int i = (int)_selectedShape.Tag + 1; i < _abstractShapes.Count; i++)
+                int tag = (int)_selectedShape.Tag;
+                for (int i = tag + 1; i < Canvas.Children.Count; i++)
+                {
+                    if (Canvas.Children[i] is Shape item)
+                    {
+                        int tagTemp = (int)item.Tag;
+                        item.Tag = --tagTemp;
+                    }
+                }
+                for (int i = tag + 1; i < _abstractShapes.Count; i++)
                     _abstractShapes[i].CanvasIndex--;
-                _abstractShapes.RemoveAt((int)_selectedShape.Tag);
+                _abstractShapes.RemoveAt(tag);
+                _strategiesForShapes.RemoveAt(tag);
+                Canvas.Children.RemoveAt(tag);
             }
         }
     }
@@ -120,7 +141,7 @@ public partial class MainForm
             }
         }
     }
-    private void CheckOnShapeSelection(object sender, MouseButtonEventArgs e)
+    private void CheckOnShapeSelection(MouseButtonEventArgs e)
     {
         if (_isCursorSelected)
         {
@@ -138,11 +159,25 @@ public partial class MainForm
             }
         }
     }
+    
+    void Canvas_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e is { ClickCount: 2, OriginalSource: Shape clickedShape })
+        {
+             int tag = (int)clickedShape.Tag;
+             var shape = _abstractShapes[tag];
+            // SolidColorBrush color = shape.Color;
+             shape.Color = _curColor;
+             shape.Draw(shape, _strategiesForShapes[tag], Canvas);
+             var shapeEditorWindow = new ShapeEditor();
+             shapeEditorWindow.ShowDialog();
+        }
+    }
     private void CheckLeftBtn(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            CheckOnShapeSelection(sender, e);
+            CheckOnShapeSelection(e);
             _listOfPoints.Add(e.GetPosition((Canvas)sender));
             if (!_isPolygonSelected && !_isCursorSelected)
                 _isDrawing = true;
@@ -158,6 +193,7 @@ public partial class MainForm
                 var shape = DrawShape();
                 _listOfPoints.Clear();
                 _abstractShapes.Add(shape);
+                _strategiesForShapes.Add(_curStrategy);
             }
         }
     }
@@ -183,7 +219,7 @@ public partial class MainForm
         _listOfPoints.Clear();
     }
 
-    private void Canvas_MouseUp(object sender, MouseEventArgs e, AbstractShape shape)
+    private void Canvas_MouseUp(MouseEventArgs e, AbstractShape shape)
     {
         if (e.LeftButton == MouseButtonState.Released)
         {
@@ -192,6 +228,7 @@ public partial class MainForm
             if (!_isPolygonSelected)
                 _listOfPoints.Clear();
             _abstractShapes.Add(shape);
+            _strategiesForShapes.Add(_curStrategy);
         }
     }
     private void RemoveLastChild(object sender)
@@ -218,7 +255,7 @@ public partial class MainForm
                 _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
                 shape = DrawShape();
             }
-            Canvas_MouseUp(sender, e, shape);
+            Canvas_MouseUp(e, shape);
         }
     }
 
@@ -233,6 +270,8 @@ public partial class MainForm
     {
         Canvas.Children.Clear();
         _listOfPoints.Clear();
+        _abstractShapes.Clear();
+        _strategiesForShapes.Clear();
     }
 
     private void SelectFigure(object sender)
@@ -250,5 +289,44 @@ public partial class MainForm
     private void ShapeCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SelectFigure(sender);
+    }
+
+    private void OpenJSON_Click(object sender, EventArgs e)
+    {
+        
+    }
+    
+    private void OpenBinary_Click(object sender, EventArgs e)
+    {
+        
+    }
+    private void SaveToJSON_Click(object sender, EventArgs e)
+    {
+        SaveFileDialog saveFileDialog = new()
+        {
+            Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*"
+        };
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            if (!saveFileDialog.FileName.EndsWith(".json"))
+            {
+                saveFileDialog.FileName += ".json";
+            }
+            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create);
+            
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+            string json = JsonConvert.SerializeObject(_abstractShapes, settings);
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            fs.Write(bytes, 0, bytes.Length);
+        }
+    }
+    
+    private void SaveToBinary_Click(object sender, EventArgs e)
+    {
+        
     }
 }

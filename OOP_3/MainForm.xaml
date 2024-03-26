@@ -9,10 +9,25 @@
         SourceInitialized="Window_SourceInitialized">
     <Grid>
         <Grid.RowDefinitions>
+             <RowDefinition Height="Auto"/>  
              <RowDefinition Height="0.07*"/>  
              <RowDefinition Height="*"/>  
         </Grid.RowDefinitions>
         <Grid Grid.Row = "0">
+            <Menu Height="25" VerticalAlignment="Top" FontSize="16" Background="White">
+                <MenuItem Header="Файл">
+                    <MenuItem Header="Открыть в формате:">
+                        <MenuItem Header="JSON" Click = "OpenJSON_Click"/>
+                        <MenuItem Header="Бинарный" Click = "OpenBinary_Click"/>
+                    </MenuItem>
+                    <MenuItem Header="Сохранить в формате:">
+                        <MenuItem Header="JSON" Click = "SaveToJSON_Click"/>
+                        <MenuItem Header="Бинарный" Click = "SaveToBinary_Click"/>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </Grid>
+        <Grid Grid.Row = "1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "Auto"/>
@@ -62,11 +77,12 @@
                 <SolidColorBrush>Yellow</SolidColorBrush>
             </ComboBox>
         </Grid>
-        <Border Grid.Row = "1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+        <Border Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
             <Canvas x:Name = "Canvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"
                     KeyUp="Canvas_KeyDown"
+                    PreviewMouseLeftButtonDown = "Canvas_OnPreviewMouseLeftButtonDown"
                     Focusable="True"
                     Background="Transparent">
             </Canvas>

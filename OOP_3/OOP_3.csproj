@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.3" />
       <PackageReference Include="Syncfusion.SfChart.WPF" Version="25.1.35" />
       <PackageReference Include="Syncfusion.SfGrid.WPF" Version="25.1.35" />
     </ItemGroup>

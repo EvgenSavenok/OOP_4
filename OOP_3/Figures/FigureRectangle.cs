@@ -2,36 +2,43 @@
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace OOP_3.Figures;
 
 [Serializable]
 public class FigureRectangle : FigurePolygon
 {
-    private Canvas Canvas { get; }
     private List<Point> ListOfPoints { get; }
     private SolidColorBrush Color { get; set; }
-    public FigureRectangle(Canvas canvas, List<Point> listOfPoints, SolidColorBrush color) : base(canvas, listOfPoints, color)
+    public FigureRectangle(List<Point> listOfPoints, SolidColorBrush color) 
+        : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;
-        Canvas = canvas;
         Color = color;
     }
     public List<Point> GetListOfPoints()
     {
         return ListOfPoints;
     }
-
-    public Canvas GetCanvas()
-    {
-        return Canvas;
-    }
+    
     public SolidColorBrush GetColor()
     {
         return Color;
     }
-    public override void Draw(AbstractShape circle, IDrawStrategy lineStrategy)
+    public override void Draw(AbstractShape rectangle, IDrawStrategy rectangleStrategy, Canvas canvas)
     {
-        lineStrategy.DrawShape(circle);
+        Shape shape = rectangleStrategy.DrawShape(rectangle);
+        if (CanvasIndex < 0)
+        {
+            CanvasIndex = canvas.Children.Count;
+            canvas.Children.Add(shape);
+        }
+        else
+        {
+            canvas.Children.RemoveAt(CanvasIndex);
+            canvas.Children.Insert(CanvasIndex, shape);
+        }
+        shape.Tag = CanvasIndex;
     }
 }

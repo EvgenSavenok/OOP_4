@@ -7,23 +7,20 @@ namespace OOP_3.Strategies;
 
 public class EllipseDrawStrategy : IDrawStrategy
 {
-    public void DrawShape(AbstractShape abstractShape)
+    public Shape DrawShape(AbstractShape abstractShape)
     {
         var ellipse = abstractShape as FigureEllipse;
-        var canvas = ellipse.GetCanvas();
-        var color = ellipse.GetColor();
-        List<Point> listOfPoints = ellipse.GetListOfPoints();
+        List<Point> listOfPoints = ellipse.ListOfPoints;
         Point startPoint = listOfPoints[0];
         Point endPont = listOfPoints[1];
         Rect rect = new Rect(startPoint, endPont);
         EllipseGeometry ellipseGeometry = new EllipseGeometry(rect);
         Path path = new Path
         {
-            Stroke = color,
+            Stroke = ellipse.Color,
             StrokeThickness = 5,
             Data = ellipseGeometry,
-            Tag = ellipse.CanvasIndex
         };
-        canvas.Children.Add(path);
+        return path;
     }
 }
