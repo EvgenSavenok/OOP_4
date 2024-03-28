@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using OOP_3.Strategies;
 using System.Windows.Controls;
-using Newtonsoft.Json;
+using System.Windows.Shapes;
 
 namespace OOP_3.Figures;
 
@@ -14,12 +13,32 @@ public abstract class AbstractShape
     public SolidColorBrush Color { get; set; }
     
     [Newtonsoft.Json.JsonIgnore]
-    public int CanvasIndex { get; set; } = -1;
-    public abstract void Draw(AbstractShape polygon, IDrawStrategy lineStrategy, Canvas canvas);
+    public IDrawStrategy DrawStrategy { get; protected set; }
+
+    [Newtonsoft.Json.JsonIgnore]
+    [NonSerialized]
+    public int CanvasIndex = -1;
 
     protected AbstractShape(List<Point> listOfPoints, SolidColorBrush color)
     {
         Color = color;
         ListOfPoints = listOfPoints;
     }
+
+    public void Draw(Canvas canvas)
+    {
+        Shape shape = DrawStrategy.DrawShape(this);
+        if (CanvasIndex < 0)
+        {
+            CanvasIndex = canvas.Children.Count;
+            canvas.Children.Add(shape);
+        }
+        else
+        {
+            canvas.Children.RemoveAt(CanvasIndex);
+            canvas.Children.Insert(CanvasIndex, shape);
+        }
+        shape.Tag = CanvasIndex;
+    }
+    
 }

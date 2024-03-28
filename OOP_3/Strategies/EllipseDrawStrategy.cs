@@ -4,7 +4,7 @@ using System.Windows.Shapes;
 using OOP_3.Figures;
 
 namespace OOP_3.Strategies;
-
+[Serializable]
 public class EllipseDrawStrategy : IDrawStrategy
 {
     public Shape DrawShape(AbstractShape abstractShape)
@@ -17,7 +17,7 @@ public class EllipseDrawStrategy : IDrawStrategy
         EllipseGeometry ellipseGeometry = new EllipseGeometry(rect);
         Path path = new Path
         {
-            Stroke = ellipse.Color,
+            Stroke = abstractShape.Color,
             StrokeThickness = 5,
             Data = ellipseGeometry,
         };

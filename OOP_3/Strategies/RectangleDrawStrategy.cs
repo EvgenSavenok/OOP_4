@@ -4,7 +4,7 @@ using OOP_3.Figures;
 using System.Windows;
 
 namespace OOP_3.Strategies;
-
+[Serializable]
 public class RectangleDrawStrategy : IDrawStrategy
 {
     public Shape DrawShape(AbstractShape abstractShape)
@@ -17,7 +17,7 @@ public class RectangleDrawStrategy : IDrawStrategy
         RectangleGeometry lineGeometry = new RectangleGeometry(rect);
         Path path = new Path
         {
-            Stroke = rectangle.Color,
+            Stroke = abstractShape.Color,
             StrokeThickness = 5,
             Data = lineGeometry,
         };

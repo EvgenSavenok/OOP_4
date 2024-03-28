@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,12 +11,9 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using OOP_3.Factories;
-using OOP_3.Strategies;
 using OOP_3.Figures;
 using Path = System.IO.Path;
 using Microsoft.Win32;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace OOP_3;
@@ -24,7 +22,6 @@ public partial class MainForm
 {
     private bool _isDrawing;
     private IShapeFactory _curFactory;
-    private IDrawStrategy _curStrategy;
     private SolidColorBrush _curColor;
     private bool _isFirstClick = true;
     private readonly List<Point> _listOfPoints = new();
@@ -34,6 +31,7 @@ public partial class MainForm
     private Shape _selectedShape;
     private const int GwlStyle = -16;
     private const int WsMaximizeBox = 0x10000;
+    Point _previousMousePosition = new (-1, -1);
     readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new()
     {
         { 0, new LineFactory() },
@@ -41,14 +39,6 @@ public partial class MainForm
         { 2, new PolygonFactory() },
         { 3, new RectangleFactory() }
     };
-    readonly Dictionary<object, IDrawStrategy> _comboBoxDrawStrategies = new()
-    {
-        { 0, new LineDrawStrategy() },
-        { 1, new EllipseDrawStrategy() },
-        { 2, new PolygonDrawStrategy() },
-        { 3, new RectangleDrawStrategy() }
-    };
-    readonly List<IDrawStrategy> _strategiesForShapes = new ();
     
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -75,8 +65,6 @@ public partial class MainForm
     {
         _isCursorSelected = true;
         _curColor = Brushes.Black;
-        // var shapeEditorWindow = new ShapeEditor();
-        // shapeEditorWindow.ShowDialog();
     }
     public MainForm()
     {
@@ -88,9 +76,8 @@ public partial class MainForm
 
     private AbstractShape DrawShape()
     {
-        /////////////////////////////////////////подумай
         var shape = _curFactory.CreateShape(new (_listOfPoints), _curColor);
-        shape.Draw(shape, _curStrategy, Canvas);
+        shape.Draw(Canvas);
         return shape;
     }
 
@@ -112,7 +99,6 @@ public partial class MainForm
                 for (int i = tag + 1; i < _abstractShapes.Count; i++)
                     _abstractShapes[i].CanvasIndex--;
                 _abstractShapes.RemoveAt(tag);
-                _strategiesForShapes.RemoveAt(tag);
                 Canvas.Children.RemoveAt(tag);
             }
         }
@@ -143,42 +129,31 @@ public partial class MainForm
     }
     private void CheckOnShapeSelection(MouseButtonEventArgs e)
     {
-        if (_isCursorSelected)
+        bool isShapeSelected = false;
+        if (_isCursorSelected && (e is { OriginalSource: Shape shape }))
         {
-            if (e is { OriginalSource: Shape shape })
+            int tag = (int)shape.Tag;
+            for (int i = tag; i < Canvas.Children.Count; i++)
             {
-                int tag = (int)shape.Tag;
-                for (int i = tag; i < Canvas.Children.Count; i++)
+                if (Canvas.Children[i] is Shape)
                 {
-                    if (Canvas.Children[i] is Shape)
-                    {
-                        _selectedShape = shape;
-                        SelectShape(shape);
-                    }
+                    _selectedShape = shape;
+                    SelectShape(shape);
+                    isShapeSelected = true;
                 }
             }
         }
+        if (!isShapeSelected)
+            _selectedShape = null;
     }
     
-    void Canvas_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e is { ClickCount: 2, OriginalSource: Shape clickedShape })
-        {
-             int tag = (int)clickedShape.Tag;
-             var shape = _abstractShapes[tag];
-            // SolidColorBrush color = shape.Color;
-             shape.Color = _curColor;
-             shape.Draw(shape, _strategiesForShapes[tag], Canvas);
-             var shapeEditorWindow = new ShapeEditor();
-             shapeEditorWindow.ShowDialog();
-        }
-    }
     private void CheckLeftBtn(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             CheckOnShapeSelection(e);
             _listOfPoints.Add(e.GetPosition((Canvas)sender));
+            _previousMousePosition = new Point(-1, -1);
             if (!_isPolygonSelected && !_isCursorSelected)
                 _isDrawing = true;
         }
@@ -193,7 +168,6 @@ public partial class MainForm
                 var shape = DrawShape();
                 _listOfPoints.Clear();
                 _abstractShapes.Add(shape);
-                _strategiesForShapes.Add(_curStrategy);
             }
         }
     }
@@ -228,7 +202,6 @@ public partial class MainForm
             if (!_isPolygonSelected)
                 _listOfPoints.Clear();
             _abstractShapes.Add(shape);
-            _strategiesForShapes.Add(_curStrategy);
         }
     }
     private void RemoveLastChild(object sender)
@@ -236,34 +209,85 @@ public partial class MainForm
         if (((Canvas)sender).Children.Count > 0)
             ((Canvas)sender).Children.RemoveAt(((Canvas)sender).Children.Count - 1);
     }
-    private void Canvas_MouseMove(object sender, MouseEventArgs e)
+
+    private void SetFirstClick(object sender, MouseEventArgs e)
     {
-        AbstractShape shape = null;
-        if (_isDrawing)
+        if (!_isFirstClick)
         {
-            if (!_isFirstClick)
-            {
-                RemoveLastChild(sender);
-            }
-            else
-            {
-                _listOfPoints.Add(e.GetPosition((Canvas)sender));
-                _isFirstClick = false;
-            }
-            if (_listOfPoints.Count > 1)
-            {
-                _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
-                shape = DrawShape();
-            }
-            Canvas_MouseUp(e, shape);
+            RemoveLastChild(sender);
+        }
+        else
+        {
+            _listOfPoints.Add(e.GetPosition((Canvas)sender));
+            _isFirstClick = false;
         }
     }
 
+    private AbstractShape RedrawShapeAccordingNewPoints(object sender, MouseEventArgs e)
+    {
+        AbstractShape shape = null;
+        if (_listOfPoints.Count > 1)
+        {
+            _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
+            shape = DrawShape();
+        }
+        return shape;
+    }
+    private void MoveSelectedShape(object sender, MouseEventArgs e)
+    {
+        Point currentMousePosition = e.GetPosition((Canvas)sender);
+        double deltaX, deltaY;
+        if (_previousMousePosition.X == -1)
+        {
+            _previousMousePosition = e.GetPosition((Canvas)sender);
+            deltaX = 0;
+            deltaY = 0;
+        }
+        else
+        {
+            deltaX = currentMousePosition.X - _previousMousePosition.X;
+            deltaY = currentMousePosition.Y - _previousMousePosition.Y;
+        }
+        int tag = (int)_selectedShape.Tag;
+        var movingShape = _abstractShapes[tag];
+        List<Point> movingShapeCoordinates = movingShape.ListOfPoints;
+        for (int i = 0; i < movingShapeCoordinates.Count; i++)
+        {
+            Point point = movingShapeCoordinates[i];
+            movingShapeCoordinates[i] = new Point(point.X + deltaX, point.Y + deltaY);
+        }
+        movingShape.ListOfPoints = movingShapeCoordinates;
+        movingShape.Draw(Canvas);
+        _previousMousePosition = currentMousePosition;
+    }
+    private void Canvas_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (_isDrawing)
+        {
+            SetFirstClick(sender, e);
+            AbstractShape shape = RedrawShapeAccordingNewPoints(sender, e);
+            Canvas_MouseUp(e, shape);
+        }
+        if (e.LeftButton == MouseButtonState.Pressed && _selectedShape != null)
+            MoveSelectedShape(sender, e);
+    }
+
+    private void ChangeFuguresColor()
+    {
+        if (_selectedShape != null)
+        {
+            int tag = (int)_selectedShape.Tag;
+            var shape = _abstractShapes[tag];
+            shape.Color = _curColor;
+            shape.Draw(Canvas);
+        }
+    }
     private void ColorCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         var selectedColor = ColorCb.SelectedItem as SolidColorBrush;
         if (selectedColor != null)
             _curColor = selectedColor;
+        ChangeFuguresColor();
     }
 
     private void ClearBtn_Click(object sender, RoutedEventArgs e)
@@ -271,7 +295,6 @@ public partial class MainForm
         Canvas.Children.Clear();
         _listOfPoints.Clear();
         _abstractShapes.Clear();
-        _strategiesForShapes.Clear();
     }
 
     private void SelectFigure(object sender)
@@ -279,7 +302,6 @@ public partial class MainForm
         ComboBox comboBox = (ComboBox)sender;
         int selectedIndex = comboBox.SelectedIndex;
         _curFactory = _comboBoxFactories[selectedIndex];
-        _curStrategy = _comboBoxDrawStrategies[selectedIndex];
         if (selectedIndex == 2)
             _isPolygonSelected = true;
         else
@@ -291,14 +313,75 @@ public partial class MainForm
         SelectFigure(sender);
     }
 
+    private void AboutDeveloper_Click(object sender, EventArgs e)
+    {
+        const string aboutDev = "Евгений Савенок, группа 251004";
+        MessageBox.Show(aboutDev, "О разработчике");
+    }
+
+    private void Help_Click(object sender, EventArgs e)
+    {
+        const string helpInfo1 = "1) Для отрисовки фигуры уберите синюю рамку с курсора, кликнув на него. " +
+                                "Вы сможете выбрать из списка одну из фигур и нарисовать её.";
+        const string helpInfo2 = "\n2) Для того, чтобы нарисовать многоугольник, кликните в тех местах холста, " +
+                                 "где Вы хотите видеть углы многоугольника, после чего нажмите ПКМ.";
+        const string helpInfo3 = "\n3) Для удаления фигуры кликните по ней и намите Delete.";
+        const string helpInfo4 = "\n4) Для изменения цвета фигуры кликните по ней, а потом выберите их списка цветов нужный. " +
+                                 "Для изменения положения фигуры зажмите ЛКМ на ней и передвигайте.";
+        const string helpInfo5 = "\n5) Для сохранения результата работы нажмите Файл->Сохранить в формате:->JSON " +
+                                 "(Бинарный формат устарел и не поддерживается, поэтому не рекомендуется его использовать)." +
+                                 "\nДля того, чтобы открыть предыдущую работу, выполните аналогичные действия с Открыть.";
+        const string helpInfo6 = "\n6) Для использования полной версии приложения пришлите разработчикам банку сгущенки.";
+        MessageBox.Show(helpInfo1 + helpInfo2 + helpInfo3 + helpInfo4 + helpInfo5 + helpInfo6, "Помощь", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
+    }
     private void OpenJSON_Click(object sender, EventArgs e)
     {
-        
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "JSON файлы (*.json)|*.json"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            try
+            {
+                string json = File.ReadAllText(openFileDialog.FileName);
+                var settings = new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                };
+                _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(json, settings);
+                Canvas.Children.Clear();
+                foreach (var shape in _abstractShapes)
+                    shape.Draw(Canvas);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Ошибка открытия файла!" +
+                                "Для фикса бага завезите банку сгущенки разрабам, пжпжпжп^_^");
+            }
+        }
     }
     
     private void OpenBinary_Click(object sender, EventArgs e)
     {
-        
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "Бинарные файлы (*.dat)|*.dat"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.Open);
+#pragma warning disable SYSLIB0011
+            BinaryFormatter formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
+            _abstractShapes = (List<AbstractShape>)formatter.Deserialize(fs);
+            Canvas.Children.Clear();
+            foreach (var shape in _abstractShapes)
+            {
+                shape.CanvasIndex = -1;
+                shape.Draw(Canvas);
+            }
+        }
     }
     private void SaveToJSON_Click(object sender, EventArgs e)
     {
@@ -309,24 +392,42 @@ public partial class MainForm
         if (saveFileDialog.ShowDialog() == true)
         {
             if (!saveFileDialog.FileName.EndsWith(".json"))
-            {
                 saveFileDialog.FileName += ".json";
-            }
             using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create);
-            
             var settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.Objects
             };
-            string json = JsonConvert.SerializeObject(_abstractShapes, settings);
-            byte[] bytes = Encoding.UTF8.GetBytes(json);
-            fs.Write(bytes, 0, bytes.Length);
+            try
+            {
+                string json = JsonConvert.SerializeObject(_abstractShapes, settings);
+                byte[] bytes = Encoding.UTF8.GetBytes(json);
+                fs.Write(bytes, 0, bytes.Length);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Ошибка сохранения в файл!" +
+                                "Для фикса бага завезите банку сгущенки разрабам, пжпжпжп^_^");
+            }
         }
     }
     
     private void SaveToBinary_Click(object sender, EventArgs e)
     {
-        
+        SaveFileDialog saveFileDialog = new()
+        {
+            Filter = "Бинарные файлы (*.dat)|*.dat|Все файлы (*.*)|*.*"
+        };
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            if (!saveFileDialog.FileName.EndsWith(".dat"))
+                saveFileDialog.FileName += ".dat";
+            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create);
+#pragma warning disable SYSLIB0011
+            BinaryFormatter formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
+            formatter.Serialize(fs, _abstractShapes);
+        }
     }
 }

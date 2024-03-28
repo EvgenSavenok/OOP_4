@@ -10,36 +10,52 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>  
-            <RowDefinition Height="0.5*"/>  
-            <RowDefinition Height="0.5*"/>  
+            <RowDefinition Height="Auto"/>  
+            <RowDefinition />  
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <ComboBox Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0">
-            <ComboBox.Style>
-                <Style TargetType="ComboBox">
-                    <Setter Property="ItemTemplate">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <Rectangle Fill="{Binding}" Width="20" Height="20" Margin="0,2,0,2"/>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ComboBox.Style>
-            <SolidColorBrush>Black</SolidColorBrush>
-            <SolidColorBrush>Green</SolidColorBrush>
-            <SolidColorBrush>Blue</SolidColorBrush>
-            <SolidColorBrush>Pink</SolidColorBrush>
-            <SolidColorBrush>Red</SolidColorBrush>
-            <SolidColorBrush>Purple</SolidColorBrush>
-            <SolidColorBrush>Yellow</SolidColorBrush>
-        </ComboBox>
-        <StackPanel Grid.Column="0">
-            <TextBlock Text="Цвет заливки" FontWeight="Bold"/>
+        <Grid Grid.Row= "0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Цвет заливки:" FontWeight="Bold" FontSize="16" Margin = "10"/>
+            </StackPanel>
+            <ComboBox Grid.Column="1" HorizontalAlignment="Right" Margin="10" SelectedIndex="0">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Rectangle Fill="{Binding}" Width="20" Height="20" Margin="0,2,0,2"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ComboBox.Style>
+                <SolidColorBrush>Black</SolidColorBrush>
+                <SolidColorBrush>Green</SolidColorBrush>
+                <SolidColorBrush>Blue</SolidColorBrush>
+                <SolidColorBrush>Pink</SolidColorBrush>
+                <SolidColorBrush>Red</SolidColorBrush>
+                <SolidColorBrush>Purple</SolidColorBrush>
+                <SolidColorBrush>Yellow</SolidColorBrush>
+            </ComboBox>
+        </Grid>
+        <Grid Grid.Row = "1">
             
-        </StackPanel>
+        </Grid> 
+        <Grid Grid.Row = "2"> 
+            <Button Content = "Подтвердить" 
+                    IsCancel="True" 
+                    Margin = "10"
+                    Width = "110"
+                    Background="Tan"
+                    HorizontalAlignment="Center"
+                    FontWeight="Bold"
+                    FontSize="16"
+                    Height="60">
+            </Button>
+        </Grid>
     </Grid>
 </Window>

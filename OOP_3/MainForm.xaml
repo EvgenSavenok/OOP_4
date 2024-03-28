@@ -25,6 +25,8 @@
                         <MenuItem Header="Бинарный" Click = "SaveToBinary_Click"/>
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header = "О разработчике" Click = "AboutDeveloper_Click"/>
+                <MenuItem Header = "Помощь" Click = "Help_Click"/>
             </Menu>
         </Grid>
         <Grid Grid.Row = "1">
@@ -82,7 +84,6 @@
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"
                     KeyUp="Canvas_KeyDown"
-                    PreviewMouseLeftButtonDown = "Canvas_OnPreviewMouseLeftButtonDown"
                     Focusable="True"
                     Background="Transparent">
             </Canvas>
