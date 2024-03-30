@@ -385,7 +385,10 @@ public partial class MainForm
                 _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(json, settings);
                 Canvas.Children.Clear();
                 foreach (var shape in _abstractShapes)
+                {
+                    //shape.Color = Brushes.Black;
                     shape.Draw(Canvas);
+                }
             }
             catch (Exception)
             {
