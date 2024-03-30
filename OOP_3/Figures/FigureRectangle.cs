@@ -10,7 +10,8 @@ namespace OOP_3.Figures;
 public class FigureRectangle : FigurePolygon
 {
     private List<Point> ListOfPoints { get; }
-    public FigureRectangle(List<Point> listOfPoints, SolidColorBrush color) 
+    public override int NumOfFactory => 3;
+    public FigureRectangle(List<Point> listOfPoints, Brush color) 
         : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;

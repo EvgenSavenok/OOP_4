@@ -1,8 +1,6 @@
-﻿using System.Windows.Media;
-using System.Windows.Shapes;
+﻿using System.Windows.Shapes;
 using OOP_3.Figures;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace OOP_3.Strategies;
 [Serializable]

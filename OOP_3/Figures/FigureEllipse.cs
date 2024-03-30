@@ -8,7 +8,9 @@ namespace OOP_3.Figures;
 public class FigureEllipse : AbstractShape
 {
     private List<Point> ListOfPoints { get; }
-    public FigureEllipse(List<Point> listOfPoints, SolidColorBrush color)
+    public override int NumOfFactory => 1;
+
+    public FigureEllipse(List<Point> listOfPoints, Brush color)
     : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;

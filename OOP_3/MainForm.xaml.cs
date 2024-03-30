@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
 using OOP_3.Factories;
 using OOP_3.Figures;
 using Path = System.IO.Path;
@@ -18,11 +19,11 @@ using Newtonsoft.Json;
 
 namespace OOP_3;
 
-public partial class MainForm 
+public partial class MainForm
 {
     private bool _isDrawing;
     private IShapeFactory _curFactory;
-    private SolidColorBrush _curColor;
+    private Brush _curColor;
     private bool _isFirstClick = true;
     private readonly List<Point> _listOfPoints = new();
     private bool _isPolygonSelected;
@@ -31,7 +32,8 @@ public partial class MainForm
     private Shape _selectedShape;
     private const int GwlStyle = -16;
     private const int WsMaximizeBox = 0x10000;
-    Point _previousMousePosition = new (-1, -1);
+    Point _previousMousePosition = new(-1, -1);
+
     readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new()
     {
         { 0, new LineFactory() },
@@ -39,10 +41,10 @@ public partial class MainForm
         { 2, new PolygonFactory() },
         { 3, new RectangleFactory() }
     };
-    
+
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-    
+
     [DllImport("user32.dll")]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
@@ -52,6 +54,7 @@ public partial class MainForm
         var value = GetWindowLong(hwnd, GwlStyle);
         SetWindowLong(hwnd, GwlStyle, value & ~WsMaximizeBox);
     }
+
     private void LoadIcon()
     {
         var path = Path.Combine(Environment.CurrentDirectory, "Icons", "Paint_Icon.png");
@@ -66,6 +69,7 @@ public partial class MainForm
         _isCursorSelected = true;
         _curColor = Brushes.Black;
     }
+
     public MainForm()
     {
         InitializeComponent();
@@ -76,7 +80,7 @@ public partial class MainForm
 
     private AbstractShape DrawShape()
     {
-        var shape = _curFactory.CreateShape(new (_listOfPoints), _curColor);
+        var shape = _curFactory.CreateShape(new(_listOfPoints), _curColor);
         shape.Draw(Canvas);
         return shape;
     }
@@ -103,6 +107,7 @@ public partial class MainForm
             }
         }
     }
+
     private void Canvas_KeyDown(object sender, KeyEventArgs e)
     {
         DeleteShape(e);
@@ -127,6 +132,7 @@ public partial class MainForm
             }
         }
     }
+
     private void CheckOnShapeSelection(MouseButtonEventArgs e)
     {
         bool isShapeSelected = false;
@@ -146,7 +152,7 @@ public partial class MainForm
         if (!isShapeSelected)
             _selectedShape = null;
     }
-    
+
     private void CheckLeftBtn(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
@@ -171,12 +177,14 @@ public partial class MainForm
             }
         }
     }
+
     private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
     {
         Canvas.Focus();
         CheckLeftBtn(sender, e);
         CheckRightBtn(e);
     }
+
     private void CursorBtn_Click(object sender, EventArgs e)
     {
         _isCursorSelected = _isCursorSelected ? false : true;
@@ -187,7 +195,7 @@ public partial class MainForm
         }
         else
         {
-            CursorBtn.BorderBrush = Brushes.Blue;
+            CursorBtn.BorderBrush = Brushes.Black;
             CursorBtn.BorderThickness = new Thickness(3);
         }
         _listOfPoints.Clear();
@@ -204,6 +212,7 @@ public partial class MainForm
             _abstractShapes.Add(shape);
         }
     }
+
     private void RemoveLastChild(object sender)
     {
         if (((Canvas)sender).Children.Count > 0)
@@ -233,6 +242,22 @@ public partial class MainForm
         }
         return shape;
     }
+
+    private List<Point> CheckMovingShapeBorders(AbstractShape movingShape, Point point, double deltaX, 
+        double deltaY, List<Point> movingShapeCoordinates, int i)
+    {
+        if (!(point.X > CanvasRow.ActualWidth || point.Y > CanvasRow.ActualHeight))
+            movingShapeCoordinates[i] = new Point(point.X + deltaX, point.Y + deltaY);
+        else
+        {
+            movingShapeCoordinates[i] = new Point(point.X - deltaX, point.Y - deltaY);
+        }
+        if (!(point.X < 0 || point.Y < 0))
+        {
+            
+        }
+        return movingShapeCoordinates;
+    }
     private void MoveSelectedShape(object sender, MouseEventArgs e)
     {
         Point currentMousePosition = e.GetPosition((Canvas)sender);
@@ -260,6 +285,7 @@ public partial class MainForm
         movingShape.Draw(Canvas);
         _previousMousePosition = currentMousePosition;
     }
+
     private void Canvas_MouseMove(object sender, MouseEventArgs e)
     {
         if (_isDrawing)
@@ -282,9 +308,10 @@ public partial class MainForm
             shape.Draw(Canvas);
         }
     }
+
     private void ColorCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var selectedColor = ColorCb.SelectedItem as SolidColorBrush;
+        var selectedColor = ColorCb.SelectedItem as Brush;
         if (selectedColor != null)
             _curColor = selectedColor;
         ChangeFuguresColor();
@@ -308,6 +335,7 @@ public partial class MainForm
             _isPolygonSelected = false;
         _listOfPoints.Clear();
     }
+
     private void ShapeCb_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SelectFigure(sender);
@@ -322,18 +350,22 @@ public partial class MainForm
     private void Help_Click(object sender, EventArgs e)
     {
         const string helpInfo1 = "1) Для отрисовки фигуры уберите синюю рамку с курсора, кликнув на него. " +
-                                "Вы сможете выбрать из списка одну из фигур и нарисовать её.";
+                                 "Вы сможете выбрать из списка одну из фигур и нарисовать её.";
         const string helpInfo2 = "\n2) Для того, чтобы нарисовать многоугольник, кликните в тех местах холста, " +
                                  "где Вы хотите видеть углы многоугольника, после чего нажмите ПКМ.";
         const string helpInfo3 = "\n3) Для удаления фигуры кликните по ней и намите Delete.";
-        const string helpInfo4 = "\n4) Для изменения цвета фигуры кликните по ней, а потом выберите их списка цветов нужный. " +
-                                 "Для изменения положения фигуры зажмите ЛКМ на ней и передвигайте.";
-        const string helpInfo5 = "\n5) Для сохранения результата работы нажмите Файл->Сохранить в формате:->JSON " +
+        const string helpInfo4 =
+            "\n4) Для изменения цвета фигуры кликните по ней, а потом выберите их списка цветов нужный. " +
+            "Для изменения положения фигуры зажмите ЛКМ на ней и передвигайте.";
+        const string helpInfo5 = "\n5) Для сохранения результата работы нажмите Файл->Сохранить в формате:->JSON или XML " +
                                  "(Бинарный формат устарел и не поддерживается, поэтому не рекомендуется его использовать)." +
                                  "\nДля того, чтобы открыть предыдущую работу, выполните аналогичные действия с Открыть.";
-        const string helpInfo6 = "\n6) Для использования полной версии приложения пришлите разработчикам банку сгущенки.";
-        MessageBox.Show(helpInfo1 + helpInfo2 + helpInfo3 + helpInfo4 + helpInfo5 + helpInfo6, "Помощь", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
+        const string helpInfo6 =
+            "\n6) Для использования полной версии приложения пришлите разработчикам банку сгущенки.";
+        MessageBox.Show(helpInfo1 + helpInfo2 + helpInfo3 + helpInfo4 + helpInfo5 + helpInfo6, "Помощь",
+            MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
     }
+
     private void OpenJSON_Click(object sender, EventArgs e)
     {
         OpenFileDialog openFileDialog = new()
@@ -361,7 +393,7 @@ public partial class MainForm
             }
         }
     }
-    
+
     private void OpenBinary_Click(object sender, EventArgs e)
     {
         OpenFileDialog openFileDialog = new()
@@ -374,15 +406,53 @@ public partial class MainForm
 #pragma warning disable SYSLIB0011
             BinaryFormatter formatter = new BinaryFormatter();
 #pragma warning restore SYSLIB0011
-            _abstractShapes = (List<AbstractShape>)formatter.Deserialize(fs);
-            Canvas.Children.Clear();
-            foreach (var shape in _abstractShapes)
+            if ((List<SerializedShape>)formatter.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
             {
-                shape.CanvasIndex = -1;
-                shape.Draw(Canvas);
+                _abstractShapes.Clear();
+                Canvas.Children.Clear();
+                foreach (var item in loadedShapes)
+                {
+                    var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, Brushes.Black);
+                    _abstractShapes.Add(shape);
+                    shape.CanvasIndex = -1;
+                    shape.Draw(Canvas);
+                }
             }
         }
     }
+
+    private void OpenXML_Click(object sender, EventArgs e)
+    {
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "XML файлы (*.xml)|*.xml"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
+                using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.OpenOrCreate);
+                if (serializer.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
+                {
+                    _abstractShapes.Clear();
+                    Canvas.Children.Clear();
+                    foreach (var item in loadedShapes)
+                    {
+                        var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, item.Color);
+                        _abstractShapes.Add(shape);
+                        shape.CanvasIndex = -1;
+                        shape.Draw(Canvas);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Ошибка номер 52 при открытии файла.");
+            }
+        }
+    }
+
     private void SaveToJSON_Click(object sender, EventArgs e)
     {
         SaveFileDialog saveFileDialog = new()
@@ -412,7 +482,7 @@ public partial class MainForm
             }
         }
     }
-    
+
     private void SaveToBinary_Click(object sender, EventArgs e)
     {
         SaveFileDialog saveFileDialog = new()
@@ -421,13 +491,52 @@ public partial class MainForm
         };
         if (saveFileDialog.ShowDialog() == true)
         {
+            List<SerializedShape> xmlShapes = new();
+            foreach (var shape in _abstractShapes)
+            {
+                xmlShapes.Add(new ()
+                {
+                    ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory
+                });
+            }
             if (!saveFileDialog.FileName.EndsWith(".dat"))
                 saveFileDialog.FileName += ".dat";
-            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create);
+            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
 #pragma warning disable SYSLIB0011
             BinaryFormatter formatter = new BinaryFormatter();
 #pragma warning restore SYSLIB0011
-            formatter.Serialize(fs, _abstractShapes);
+            formatter.Serialize(fs, xmlShapes);
+        }
+    }
+
+    private void SaveToXML_Click(object sender, EventArgs e)
+    {
+        SaveFileDialog saveFileDialog = new()
+        {
+            Filter = "XML файлы (*.xml)|*.xml|Все файлы (*.*)|*.*"
+        };
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            if (!saveFileDialog.FileName.EndsWith(".xml"))
+                saveFileDialog.FileName += ".xml";
+            try
+            {
+                using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
+                List<SerializedShape> xmlShapes = new();
+                foreach (var shape in _abstractShapes)
+                {
+                    xmlShapes.Add(new ()
+                    {
+                        ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory
+                    });
+                }
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<SerializedShape>));
+                xmlSerializer.Serialize(fs, xmlShapes);
+            }
+            catch (Exception)
+            {
+             MessageBox.Show("Ошибка номер 52 при сохранении файла.");
+            }
         }
     }
 }

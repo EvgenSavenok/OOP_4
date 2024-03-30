@@ -25,9 +25,6 @@ C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\Syncfusion.SfG
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\Syncfusion.Shared.WPF.dll
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3.csproj.AssemblyReference.cache
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3.csproj.Up2Date
-C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\ShapeEditor.g.cs
-C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\OOP_3_MarkupCompile.lref
-C:\Users\eugen\RiderProjects\OOP_3\OOP_3\obj\Debug\net8.0-windows\ShapeEditor.baml
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\Microsoft.AspNetCore.JsonPatch.dll
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\eugen\RiderProjects\OOP_3\OOP_3\bin\Debug\net8.0-windows\Newtonsoft.Json.dll

@@ -8,7 +8,8 @@ namespace OOP_3.Figures;
 public class FigureLine : AbstractShape
 {
     private List<Point> ListOfPoints { get; }
-    public FigureLine(List<Point> listOfPoints, SolidColorBrush color) 
+    public override int NumOfFactory => 0;
+    public FigureLine(List<Point> listOfPoints, Brush color) 
         : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;

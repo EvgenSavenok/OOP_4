@@ -9,7 +9,6 @@ public class LineDrawStrategy : IDrawStrategy
 {
     public Shape DrawShape(AbstractShape abstractShape)
     {
-       
         List<Point> listOfPoints = abstractShape.ListOfPoints;
         Point startPoint, endPont;
         startPoint = listOfPoints[0];

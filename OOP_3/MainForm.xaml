@@ -19,10 +19,12 @@
                     <MenuItem Header="Открыть в формате:">
                         <MenuItem Header="JSON" Click = "OpenJSON_Click"/>
                         <MenuItem Header="Бинарный" Click = "OpenBinary_Click"/>
+                        <MenuItem Header="XML" Click = "OpenXML_Click"/>
                     </MenuItem>
                     <MenuItem Header="Сохранить в формате:">
                         <MenuItem Header="JSON" Click = "SaveToJSON_Click"/>
                         <MenuItem Header="Бинарный" Click = "SaveToBinary_Click"/>
+                        <MenuItem Header="XML" Click = "SaveToXML_Click"/>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header = "О разработчике" Click = "AboutDeveloper_Click"/>
@@ -47,14 +49,14 @@
             </ComboBox>
             <Button x:Name = "CursorBtn" Grid.Column="1" HorizontalAlignment="Left" Margin="10"
                     Click="CursorBtn_Click"
-                    BorderBrush="Blue"
+                    BorderBrush="Black"
                     BorderThickness="3">
                 <Image Source="/Images/Cursor.png"></Image>
             </Button>
             <Button Grid.Column = "2" HorizontalAlignment="Left" Margin = "10"
-                    Background="White" Content = "Очистить"
+                    Background="LightGreen" Content = "Очистить"
                     Click = "ClearBtn_Click"
-                    Width = "Auto"
+                    Width = "100"
                     FontSize="16">
             </Button>
             <ComboBox Name = "ColorCb" Grid.Column="3" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
@@ -70,16 +72,16 @@
                         </Setter>
                     </Style>
                 </ComboBox.Style>
-                <SolidColorBrush>Black</SolidColorBrush>
-                <SolidColorBrush>Green</SolidColorBrush>
-                <SolidColorBrush>Blue</SolidColorBrush>
-                <SolidColorBrush>Pink</SolidColorBrush>
-                <SolidColorBrush>Red</SolidColorBrush>
-                <SolidColorBrush>Purple</SolidColorBrush>
-                <SolidColorBrush>Yellow</SolidColorBrush>
+                <Brush>Black</Brush>
+                <Brush>Green</Brush>
+                <Brush>Blue</Brush>
+                <Brush>Pink</Brush>
+                <Brush>Red</Brush>
+                <Brush>Purple</Brush>
+                <Brush>Yellow</Brush>
             </ComboBox>
         </Grid>
-        <Border Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+        <Border x:Name = "CanvasRow" Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
             <Canvas x:Name = "Canvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"

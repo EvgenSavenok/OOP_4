@@ -8,7 +8,8 @@ namespace OOP_3.Figures;
 public class FigurePolygon : AbstractShape
 {
     private List<Point> ListOfPoints { get; }
-    public FigurePolygon(List<Point> listOfPoints, SolidColorBrush color)
+    public override int NumOfFactory => 2;
+    public FigurePolygon(List<Point> listOfPoints, Brush color)
         : base(listOfPoints, color)
     {
         ListOfPoints = listOfPoints;
