@@ -290,6 +290,7 @@ public partial class MainForm
     {
         if (_isDrawing)
         {
+            int i;
             SetFirstClick(sender, e);
             AbstractShape shape = RedrawShapeAccordingNewPoints(sender, e);
             Canvas_MouseUp(e, shape);
