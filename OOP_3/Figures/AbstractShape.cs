@@ -14,7 +14,7 @@ namespace OOP_3.Figures;
 public abstract class AbstractShape
 {
     public List<Point> ListOfPoints { get; set; }
-    [NonSerialized] public Brush Color;
+    public Brush Color;
     
     public abstract int NumOfFactory { get; }
     
