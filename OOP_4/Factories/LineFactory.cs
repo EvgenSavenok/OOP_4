@@ -5,9 +5,9 @@ using System.Windows.Media;
 
 namespace OOP_3.Factories;
 
-public class LineFactory : IShapeFactory
+public class LineFactory : AbstractShapeFactory
 {
-    public AbstractShape CreateShape(List<Point> listOfPoints, Brush color)
+    public override AbstractShape CreateShape(List<Point> listOfPoints, Brush color)
     {
         return new FigureLine(listOfPoints, color);
     }

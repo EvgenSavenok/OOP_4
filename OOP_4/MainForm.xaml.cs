@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -11,11 +12,11 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml.Serialization;
-using OOP_3.Factories;
 using OOP_3.Figures;
 using Path = System.IO.Path;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using OOP_4;
 
 namespace OOP_3;
 
@@ -28,19 +29,13 @@ public partial class MainForm
     private readonly List<Point> _listOfPoints = new();
     private bool _isPolygonSelected;
     private bool _isCursorSelected;
-    private List<AbstractShape> _abstractShapes = new();
+    private List<OOP_4.AbstractShape> _abstractShapes = new();
     private Shape _selectedShape;
     private const int GwlStyle = -16;
     private const int WsMaximizeBox = 0x10000;
     Point _previousMousePosition = new(-1, -1);
 
-    readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new()
-    {
-        { 0, new LineFactory() },
-        { 1, new EllipseFactory() },
-        { 2, new PolygonFactory() },
-        { 3, new RectangleFactory() }
-    };
+    private readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new();
 
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -70,17 +65,34 @@ public partial class MainForm
         _curColor = Brushes.Black;
     }
 
+    private void LoadAssemblies(string assembly)
+    {
+        Assembly pluginAssembly = Assembly.LoadFrom(assembly);
+        foreach (Type type in pluginAssembly.GetTypes())
+        {
+            if (typeof(IShapeFactory).IsAssignableFrom(type) && !type.IsAbstract)
+            {
+                IShapeFactory factory = (IShapeFactory)Activator.CreateInstance(type);
+                _comboBoxFactories[_comboBoxFactories.Count] = factory;
+            }
+        }
+    }
+    private void LoadFactories()
+    {   
+        LoadAssemblies("LineLibrary.dll");
+        _curFactory = _comboBoxFactories[0];
+    }
     public MainForm()
     {
         InitializeComponent();
         WindowState = WindowState.Maximized;
         InitializeCanvas();
         LoadIcon();
+        LoadFactories();
     }
-
-    private AbstractShape DrawShape()
+    private OOP_4.AbstractShape DrawShape()
     {
-        var shape = _curFactory.CreateShape(new(_listOfPoints), _curColor);
+        var shape = _curFactory.CreateShape(new List<Point>(_listOfPoints), _curColor);
         shape.Draw(Canvas);
         return shape;
     }
@@ -201,7 +213,7 @@ public partial class MainForm
         _listOfPoints.Clear();
     }
 
-    private void Canvas_MouseUp(MouseEventArgs e, AbstractShape shape)
+    private void Canvas_MouseUp(MouseEventArgs e, OOP_4.AbstractShape shape)
     {
         if (e.LeftButton == MouseButtonState.Released)
         {
@@ -232,31 +244,15 @@ public partial class MainForm
         }
     }
 
-    private AbstractShape RedrawShapeAccordingNewPoints(object sender, MouseEventArgs e)
+    private OOP_4.AbstractShape RedrawShapeAccordingNewPoints(object sender, MouseEventArgs e)
     {
-        AbstractShape shape = null;
+        OOP_4.AbstractShape shape = null;
         if (_listOfPoints.Count > 1)
         {
             _listOfPoints[_listOfPoints.Count - 1] = e.GetPosition((Canvas)sender);
             shape = DrawShape();
         }
         return shape;
-    }
-
-    private List<Point> CheckMovingShapeBorders(AbstractShape movingShape, Point point, double deltaX, 
-        double deltaY, List<Point> movingShapeCoordinates, int i)
-    {
-        if (!(point.X > CanvasRow.ActualWidth || point.Y > CanvasRow.ActualHeight))
-            movingShapeCoordinates[i] = new Point(point.X + deltaX, point.Y + deltaY);
-        else
-        {
-            movingShapeCoordinates[i] = new Point(point.X - deltaX, point.Y - deltaY);
-        }
-        if (!(point.X < 0 || point.Y < 0))
-        {
-            
-        }
-        return movingShapeCoordinates;
     }
     private void MoveSelectedShape(object sender, MouseEventArgs e)
     {
@@ -292,7 +288,7 @@ public partial class MainForm
         {
             int i;
             SetFirstClick(sender, e);
-            AbstractShape shape = RedrawShapeAccordingNewPoints(sender, e);
+            OOP_4.AbstractShape shape = RedrawShapeAccordingNewPoints(sender, e);
             Canvas_MouseUp(e, shape);
         }
         if (e.LeftButton == MouseButtonState.Pressed && _selectedShape != null)
@@ -325,11 +321,12 @@ public partial class MainForm
         _abstractShapes.Clear();
     }
 
-    private void SelectFigure(object sender)
+    private void SelectFigure(object sender)      
     {
         ComboBox comboBox = (ComboBox)sender;
         int selectedIndex = comboBox.SelectedIndex;
-        _curFactory = _comboBoxFactories[selectedIndex];
+        if (_comboBoxFactories.Count > 0) 
+            _curFactory = _comboBoxFactories[selectedIndex];
         if (selectedIndex == 2)
             _isPolygonSelected = true;
         else
@@ -382,7 +379,7 @@ public partial class MainForm
                 {
                     TypeNameHandling = TypeNameHandling.Objects,
                 };
-                _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(json, settings);
+                _abstractShapes = JsonConvert.DeserializeObject<List<OOP_4.AbstractShape>>(json, settings);
                 Canvas.Children.Clear();
                 foreach (var shape in _abstractShapes)
                 {
@@ -416,8 +413,11 @@ public partial class MainForm
                 Canvas.Children.Clear();
                 foreach (var item in loadedShapes)
                 {
-                    var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, Brushes.Black);
-                    _abstractShapes.Add(shape);
+                    //////////////////////////////////////////////////////
+                    //_comboBoxFactories.Add(item.NumOfFactory, _curFactory.GetType());
+                    var shape = _curFactory.CreateShape(item.ListOfPoints, Brushes.Black);
+                    //var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, Brushes.Black);
+                    //_abstractShapes.Add(shape);
                     shape.CanvasIndex = -1;
                     shape.Draw(Canvas);
                 }
@@ -443,10 +443,10 @@ public partial class MainForm
                     Canvas.Children.Clear();
                     foreach (var item in loadedShapes)
                     {
-                        var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, item.Color);
-                        _abstractShapes.Add(shape);
-                        shape.CanvasIndex = -1;
-                        shape.Draw(Canvas);
+                        // var shape = _comboBoxFactories[item.NumOfFactory].CreateShape(item.ListOfPoints, item.Color);
+                        // _abstractShapes.Add(shape);
+                        // shape.CanvasIndex = -1;
+                        // shape.Draw(Canvas);
                     }
                 }
             }
@@ -538,8 +538,8 @@ public partial class MainForm
                 xmlSerializer.Serialize(fs, xmlShapes);
             }
             catch (Exception)
-            {
-             MessageBox.Show("Ошибка номер 52 при сохранении файла.");
+            { 
+                MessageBox.Show("Ошибка номер 52 при сохранении файла.");
             }
         }
     }

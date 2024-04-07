@@ -20,4 +20,8 @@
       <Resource Include="Images\Cursor.png" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LineLibrary\LineLibrary.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -5,9 +5,9 @@ using System.Windows.Media;
 
 namespace OOP_3.Factories;
 
-public class RectangleFactory : IShapeFactory
+public class RectangleFactory : AbstractShapeFactory
 {
-    public AbstractShape CreateShape(List<Point> listOfPoints, Brush color)
+    public override AbstractShape CreateShape(List<Point> listOfPoints, Brush color)
     {
         return new FigureRectangle(listOfPoints, color);
     }
