@@ -4,64 +4,6 @@
     "C:\\Users\\eugen\\RiderProjects\\OOP_4\\OOP_4\\OOP_4.csproj": {}
   },
   "projects": {
-    "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj",
-        "projectName": "LineLibrary",
-        "projectPath": "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj",
-        "packagesPath": "C:\\Users\\eugen\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\eugen\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0-windows"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0-windows7.0": {
-            "targetAlias": "net8.0-windows",
-            "projectReferences": {}
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        }
-      },
-      "frameworks": {
-        "net8.0-windows7.0": {
-          "targetAlias": "net8.0-windows",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            },
-            "Microsoft.WindowsDesktop.App.WPF": {
-              "privateAssets": "none"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
     "C:\\Users\\eugen\\RiderProjects\\OOP_4\\OOP_4\\OOP_4.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -85,11 +27,7 @@
         "frameworks": {
           "net8.0-windows7.0": {
             "targetAlias": "net8.0-windows",
-            "projectReferences": {
-              "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj": {
-                "projectPath": "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj"
-              }
-            }
+            "projectReferences": {}
           }
         },
         "warningProperties": {

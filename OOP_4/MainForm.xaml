@@ -27,6 +27,7 @@
                         <MenuItem Header="XML" Click = "SaveToXML_Click"/>
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header = "Загрузить модуль" Click = "LoadModule_Click"></MenuItem>
                 <MenuItem Header = "О разработчике" Click = "AboutDeveloper_Click"/>
                 <MenuItem Header = "Помощь" Click = "Help_Click"/>
             </Menu>
@@ -41,11 +42,11 @@
             <ComboBox Grid.Column="0" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
                       SelectionChanged="ShapeCb_SelectionChanged"
                       Width = "Auto"
-                      FontSize="16">
-                <system:String>Линия</system:String>
-                <system:String>Эллипс</system:String>
-                <system:String>Многоугольник</system:String>
-                <system:String>Прямоугольник</system:String>
+                      FontSize="16"
+                      ItemsSource="{Binding ComboBoxItems}"
+                      SelectedItem="{Binding SelectedIndex}"
+                      x:Name = "ShapesCb" 
+                      >
             </ComboBox>
             <Button x:Name = "CursorBtn" Grid.Column="1" HorizontalAlignment="Left" Margin="10"
                     Click="CursorBtn_Click"

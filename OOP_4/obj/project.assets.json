@@ -149,19 +149,6 @@
             "related": ".xml"
           }
         }
-      },
-      "LineLibrary/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
-        "compile": {
-          "bin/placeholder/LineLibrary.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/LineLibrary.dll": {}
-        },
-        "frameworkReferences": [
-          "Microsoft.WindowsDesktop.App.WPF"
-        ]
       }
     }
   },
@@ -456,16 +443,10 @@
         "syncfusion_logo.png",
         "tools/VisualStudioToolsManifest.xml"
       ]
-    },
-    "LineLibrary/1.0.0": {
-      "type": "project",
-      "path": "../LineLibrary/LineLibrary.csproj",
-      "msbuildProject": "../LineLibrary/LineLibrary.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
-      "LineLibrary >= 1.0.0",
       "Microsoft.AspNetCore.Mvc.NewtonsoftJson >= 8.0.3",
       "Syncfusion.SfChart.WPF >= 25.1.35",
       "Syncfusion.SfGrid.WPF >= 25.1.35"
@@ -497,11 +478,7 @@
       "frameworks": {
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
-          "projectReferences": {
-            "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj": {
-              "projectPath": "C:\\Users\\eugen\\RiderProjects\\OOP_4\\LineLibrary\\LineLibrary.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {
