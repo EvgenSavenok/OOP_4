@@ -69,9 +69,9 @@ public partial class MainForm
 
     private bool CheckExistingModules(IShapeFactory factory)
     {
-        if (_comboBoxFactories.Count > 0)
+        foreach (var item in _comboBoxFactories)
         {
-            if (_comboBoxFactories[0].Equals(factory))
+            if (item.Value.GetType() == factory.GetType())
                 return false;
         }
         return true;
@@ -85,6 +85,7 @@ public partial class MainForm
             if (typeof(IShapeFactory).IsAssignableFrom(type))
             {
                 IShapeFactory factory = (IShapeFactory)Activator.CreateInstance(type);
+                Type t = factory.GetType();
                 if (CheckExistingModules(factory))
                 {
                     _comboBoxFactories.Add(_comboBoxFactories.Count, factory);
@@ -425,14 +426,13 @@ public partial class MainForm
                 Canvas.Children.Clear();
                 foreach (var shape in _abstractShapes)
                 {
-                    //shape.Color = Brushes.Black;
                     shape.Draw(Canvas);
                 }
             }
             catch (Exception)
             {
-                MessageBox.Show("Ошибка открытия файла!" +
-                                "Для фикса бага завезите банку сгущенки разрабам, пжпжпжп^_^");
+                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                                "Вы загрузили не все модули фигур.");
             }
         }
     }
@@ -445,21 +445,30 @@ public partial class MainForm
         };
         if (openFileDialog.ShowDialog() == true)
         {
-            using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.Open);
-#pragma warning disable SYSLIB0011
-            BinaryFormatter formatter = new BinaryFormatter();
-#pragma warning restore SYSLIB0011
-            if ((List<SerializedShape>)formatter.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
+            try
             {
-                _abstractShapes.Clear();
-                Canvas.Children.Clear();
-                foreach (var item in loadedShapes)
+                using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.Open);
+#pragma warning disable SYSLIB0011
+                BinaryFormatter formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
+                if ((List<SerializedShape>)formatter.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
                 {
-                    var shape = _curFactory.CreateShape(item.ListOfPoints, Brushes.Black);
-                    _abstractShapes.Add(shape);
-                    shape.CanvasIndex = -1;
-                    shape.Draw(Canvas);
+                    _abstractShapes.Clear();
+                    Canvas.Children.Clear();
+                    foreach (var item in loadedShapes)
+                    {
+                        
+                        var shape = _curFactory.CreateShape(item.ListOfPoints, item.Color);
+                        _abstractShapes.Add(shape);
+                        shape.CanvasIndex = -1;
+                        shape.Draw(Canvas);
+                    }
                 }
+            }
+            catch (Exception)
+            { 
+                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                                "Вы загрузили не все модули фигур.");
             }
         }
     }
@@ -472,8 +481,8 @@ public partial class MainForm
         };
         if (openFileDialog.ShowDialog() == true)
         {
-            //try
-            //{
+            try
+            {
                 XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
                 using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.OpenOrCreate);
                 if (serializer.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
@@ -482,17 +491,18 @@ public partial class MainForm
                     Canvas.Children.Clear();
                     foreach (var item in loadedShapes)
                     {
-                        var shape = _curFactory.CreateShape(item.ListOfPoints, Brushes.Black);
+                        var shape = _curFactory.CreateShape(item.ListOfPoints, item.Color);
                         _abstractShapes.Add(shape);
                         shape.CanvasIndex = -1;
                         shape.Draw(Canvas);
                     }
                 }
-            //}
-            // catch (Exception)
-            // {
-            //     MessageBox.Show("Ошибка номер 52 при открытии файла.");
-            // }
+            }
+            catch (Exception)
+            { 
+                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                                "Вы загрузили не все модули фигур.");
+            }
         }
     }
 
@@ -520,8 +530,7 @@ public partial class MainForm
             }
             catch (Exception)
             {
-                MessageBox.Show("Ошибка сохранения в файл!" +
-                                "Для фикса бага завезите банку сгущенки разрабам, пжпжпжп^_^");
+                MessageBox.Show("Ошибка номер 52 при сохранении файла.");
             }
         }
     }
