@@ -27,13 +27,21 @@
                         <MenuItem Header="XML" Click = "SaveToXML_Click"/>
                     </MenuItem>
                 </MenuItem>
-                <MenuItem Header = "Загрузить модуль" Click = "LoadModule_Click"></MenuItem>
+                <MenuItem Header="Динамическая загрузка">
+                    <MenuItem Header = "Загрузить модуль" Click = "LoadModule_Click"></MenuItem>
+                    <MenuItem Header = "Загрузить функционал" Click = "LoadFunc_Click"></MenuItem>
+                </MenuItem>
+                <MenuItem Header = "Текущий функциональный плагин">
+                    <MenuItem Header="Открыть" Click = "OpenCurFuncPlugin_Click"/>
+                    <MenuItem Header="Сохранить" Click = "SaveCurFuncPlugin_Click"/>
+                </MenuItem>
                 <MenuItem Header = "О разработчике" Click = "AboutDeveloper_Click"/>
                 <MenuItem Header = "Помощь" Click = "Help_Click"/>
             </Menu>
         </Grid>
         <Grid Grid.Row = "1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "Auto"/>
                 <ColumnDefinition Width = "*"/>
@@ -60,7 +68,16 @@
                     Width = "100"
                     FontSize="16">
             </Button>
-            <ComboBox Name = "ColorCb" Grid.Column="3" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
+            <ComboBox Grid.Column="3" HorizontalAlignment="Left" Margin="10" SelectedIndex="0"
+                      SelectionChanged="CurFuncPlugin_SelectionChanged"
+                      Width = "Auto"
+                      FontSize="16"
+                      ItemsSource="{Binding ComboBoxFunctionalities}"
+                      SelectedItem="{Binding SelectedIndex}"
+                      x:Name = "FuncPluginsCb" 
+            >
+            </ComboBox>
+            <ComboBox Name = "ColorCb" Grid.Column="4" HorizontalAlignment="Right" Margin="10" SelectedIndex="0" 
                       SelectionChanged="ColorCb_SelectionChanged">
                 <ComboBox.Style>
                     <Style TargetType="ComboBox">
@@ -82,7 +99,7 @@
                 <Brush>Yellow</Brush>
             </ComboBox>
         </Grid>
-        <Border x:Name = "CanvasRow" Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+        <Border Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
             <Canvas x:Name = "Canvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"

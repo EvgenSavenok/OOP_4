@@ -13,4 +13,5 @@ public class SerializedShape
     [NonSerialized]
     public Brush Color;
     public int NumOfFactory { get; set; }
+    public string FactoryName { get; set; }
 }

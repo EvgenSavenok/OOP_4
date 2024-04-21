@@ -24,6 +24,9 @@
       <Reference Include="BaseShapesClasses">
         <HintPath>..\..\BaseShapesClasses\BaseShapesClasses\bin\Debug\net8.0-windows\BaseShapesClasses.dll</HintPath>
       </Reference>
+      <Reference Include="FunctionalityModule">
+        <HintPath>..\..\FunctionalityModule\bin\Debug\net8.0-windows\FunctionalityModule.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

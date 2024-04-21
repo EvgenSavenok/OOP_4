@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,12 +11,16 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using OOP_3.Figures;
 using Path = System.IO.Path;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using BaseShapesClasses;
+using Newtonsoft.Json.Linq;
+using OOP_3.Functionality;
+using OOP_3.Serialization;
 
 namespace OOP_3;
 
@@ -25,6 +28,7 @@ public partial class MainForm
 {
     private bool _isDrawing;
     private IShapeFactory _curFactory;
+    private IFunctionality _curFunctionality;
     private Brush _curColor;
     private bool _isFirstClick = true;
     private readonly List<Point> _listOfPoints = new();
@@ -37,6 +41,12 @@ public partial class MainForm
     Point _previousMousePosition = new(-1, -1);
     private readonly ObservableCollection<object> _comboBoxItems = new();
     private readonly Dictionary<int, IShapeFactory> _comboBoxFactories = new();
+    private readonly ObservableCollection<object> _comboBoxFunctionalities = new();
+    private readonly Dictionary<int, IFunctionality> _functionalities = new();
+    private FunctionalityLoader FuncLoader { get; } = new();
+    private CustomJsonSerializer JsonSerializer { get; } = new();
+    private CustomXMLSerializer XmlSerializer { get; } = new();
+    private CustomBinarySerializer BinarySerializer { get; } = new();
 
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -65,6 +75,7 @@ public partial class MainForm
         _isCursorSelected = true;
         _curColor = Brushes.Black;
         ShapesCb.ItemsSource = _comboBoxItems;
+        FuncPluginsCb.ItemsSource = _comboBoxFunctionalities;
     }
 
     private bool CheckExistingModules(IShapeFactory factory)
@@ -80,12 +91,12 @@ public partial class MainForm
     private void LoadAssemblies(string assembly)
     {
         Assembly pluginAssembly = Assembly.LoadFrom(assembly);
-        foreach (Type type in pluginAssembly.GetTypes())
+        Type[] types = pluginAssembly.GetTypes();
+        foreach (Type type in types)
         {
             if (typeof(IShapeFactory).IsAssignableFrom(type))
             {
                 IShapeFactory factory = (IShapeFactory)Activator.CreateInstance(type);
-                Type t = factory.GetType();
                 if (CheckExistingModules(factory))
                 {
                     _comboBoxFactories.Add(_comboBoxFactories.Count, factory);
@@ -100,7 +111,6 @@ public partial class MainForm
         if (path != null)
         {
             LoadAssemblies(path);
-            //_curFactory = _comboBoxFactories[0];
             _selectedShape = null;
         }
     }
@@ -122,6 +132,92 @@ public partial class MainForm
     {
         string path = HandleOpenedFile();
         LoadFactories(path);
+    }
+
+    private void OpenCurFuncPlugin_Click(object sender, EventArgs e)
+    {
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "XML файлы (*.xml)|*.xml"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            string xml = File.ReadAllText(openFileDialog.FileName);
+            var doc = XDocument.Parse(xml);
+            string json = JsonConvert.SerializeXNode(doc);
+            
+            JToken token = JToken.Parse(json);
+
+            // Создание массива и добавление JSON объекта
+            JArray array = new JArray();
+            array.Add(token);
+
+            // Сериализация массива в строку JSON
+            string jsonArray = array.ToString(Formatting.Indented);
+            
+            var jsonObject = JsonConvert.DeserializeObject<RootShape>(jsonArray);
+            List<SerializedShape> shapes = jsonObject.shapes;
+            string newJson = JsonConvert.SerializeObject(shapes, Formatting.Indented);
+            
+            var settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+            };
+            _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(newJson, settings);
+            Canvas.Children.Clear();
+            foreach (var shape in _abstractShapes)
+            {
+                shape.Draw(Canvas);
+            }
+        }
+    }
+    
+    private static readonly XDeclaration _defaultDeclaration = new("1.0", null, null);
+    private void SaveCurFuncPlugin_Click(object sender, EventArgs e)
+    {
+        //_curFunctionality.SaveToFile(_abstractShapes);
+        CustomJsonSerializer jsonSerializer = new CustomJsonSerializer();
+        var jsonFilePath = jsonSerializer.JsonSerialize(_abstractShapes);
+        if (jsonFilePath != "")
+        {
+            string json = File.ReadAllText(jsonFilePath);
+            if (jsonFilePath.EndsWith(".json"))
+                jsonFilePath = jsonFilePath.Remove(jsonFilePath.Length - 5, 5);
+            string xmlFilePath = jsonFilePath + ".xml";
+
+            List<FunctionalityShapes> shapes = JsonConvert.DeserializeObject<List<FunctionalityShapes>>(json)!;
+            var newObj = new { shapes };
+            string newJson = JsonConvert.SerializeObject(newObj, Formatting.Indented);
+
+            var xml = JsonConvert.DeserializeXNode(newJson)!;
+            var declaration = xml.Declaration ?? _defaultDeclaration;
+            using (FileStream xmlFileStream = new FileStream(xmlFilePath, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(xmlFileStream))
+                {
+                    writer.Write(declaration + Environment.NewLine + xml);
+                }
+            }
+            File.Delete(jsonFilePath + ".json");
+        }
+    }
+
+    private void CurFuncPlugin_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ComboBox comboBox = (ComboBox)sender;
+        int selectedIndex = comboBox.SelectedIndex;
+        if (_functionalities.Count > 0)
+            _curFunctionality = _functionalities[selectedIndex];
+    }
+    private void LoadFunc_Click(object sender, EventArgs e)
+    {
+        string path = HandleOpenedFile();
+        var functionality = FuncLoader.LoadNewFunctionality(path);
+        if (functionality != null)
+        {
+            _functionalities.Add(_functionalities.Count, functionality);
+            _comboBoxFunctionalities.Add(functionality.GetName);
+        }
     }
 
     public MainForm()
@@ -437,6 +533,27 @@ public partial class MainForm
         }
     }
 
+    private void DrawDeserializedFigures(List<SerializedShape> loadedShapes)
+    {
+        foreach (var item in loadedShapes)
+        {
+            string itemName = item.FactoryName;
+            int index = -1;
+            for (int i = 0; i < _comboBoxFactories.Count; i++)
+            {
+                if (_comboBoxFactories[i].GetFactoryName() == itemName)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            var factory = _comboBoxFactories[index];
+            var shape = factory.CreateShape(item.ListOfPoints, item.Color);
+            _abstractShapes.Add(shape);
+            shape.CanvasIndex = -1;
+            shape.Draw(Canvas);
+        }
+    }
     private void OpenBinary_Click(object sender, EventArgs e)
     {
         OpenFileDialog openFileDialog = new()
@@ -455,20 +572,13 @@ public partial class MainForm
                 {
                     _abstractShapes.Clear();
                     Canvas.Children.Clear();
-                    foreach (var item in loadedShapes)
-                    {
-                        
-                        var shape = _curFactory.CreateShape(item.ListOfPoints, item.Color);
-                        _abstractShapes.Add(shape);
-                        shape.CanvasIndex = -1;
-                        shape.Draw(Canvas);
-                    }
+                    DrawDeserializedFigures(loadedShapes);
                 }
             }
             catch (Exception)
             { 
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
+             MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                             "Вы загрузили не все модули фигур.");
             }
         }
     }
@@ -489,106 +599,29 @@ public partial class MainForm
                 {
                     _abstractShapes.Clear();
                     Canvas.Children.Clear();
-                    foreach (var item in loadedShapes)
-                    {
-                        var shape = _curFactory.CreateShape(item.ListOfPoints, item.Color);
-                        _abstractShapes.Add(shape);
-                        shape.CanvasIndex = -1;
-                        shape.Draw(Canvas);
-                    }
+                    DrawDeserializedFigures(loadedShapes);
                 }
             }
             catch (Exception)
             { 
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
+             MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                             "Вы загрузили не все модули фигур.");
             }
         }
     }
 
     private void SaveToJSON_Click(object sender, EventArgs e)
     {
-        SaveFileDialog saveFileDialog = new()
-        {
-            Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*"
-        };
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            if (!saveFileDialog.FileName.EndsWith(".json"))
-                saveFileDialog.FileName += ".json";
-            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.Create);
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Objects
-            };
-            try
-            {
-                string json = JsonConvert.SerializeObject(_abstractShapes, settings);
-                byte[] bytes = Encoding.UTF8.GetBytes(json);
-                fs.Write(bytes, 0, bytes.Length);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при сохранении файла.");
-            }
-        }
+        JsonSerializer.JsonSerialize(_abstractShapes);
     }
 
     private void SaveToBinary_Click(object sender, EventArgs e)
     {
-        SaveFileDialog saveFileDialog = new()
-        {
-            Filter = "Бинарные файлы (*.dat)|*.dat|Все файлы (*.*)|*.*"
-        };
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            List<SerializedShape> xmlShapes = new();
-            foreach (var shape in _abstractShapes)
-            {
-                xmlShapes.Add(new()
-                {
-                    ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory
-                });
-            }
-            if (!saveFileDialog.FileName.EndsWith(".dat"))
-                saveFileDialog.FileName += ".dat";
-            using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
-#pragma warning disable SYSLIB0011
-            BinaryFormatter formatter = new BinaryFormatter();
-#pragma warning restore SYSLIB0011
-            formatter.Serialize(fs, xmlShapes);
-        }
+        BinarySerializer.BinarySerialize(_abstractShapes);
     }
 
     private void SaveToXML_Click(object sender, EventArgs e)
     {
-        SaveFileDialog saveFileDialog = new()
-        {
-            Filter = "XML файлы (*.xml)|*.xml|Все файлы (*.*)|*.*"
-        };
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            if (!saveFileDialog.FileName.EndsWith(".xml"))
-                saveFileDialog.FileName += ".xml";
-            try
-            {
-                using FileStream fs = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
-                List<SerializedShape> xmlShapes = new();
-                foreach (var shape in _abstractShapes)
-                {
-                    xmlShapes.Add(new()
-                    {
-                        ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory
-                    });
-                }
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<SerializedShape>));
-                xmlSerializer.Serialize(fs, xmlShapes);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при сохранении файла.");
-            }
-        }
+        XmlSerializer.XmlSerialize(_abstractShapes);
     }
 }

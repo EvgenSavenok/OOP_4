@@ -11,7 +11,8 @@
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "8.0.3",
           "Syncfusion.SfChart.WPF": "25.1.35",
           "Syncfusion.SfGrid.WPF": "25.1.35",
-          "BaseShapesClasses": "1.0.0.0"
+          "BaseShapesClasses": "1.0.0.0",
+          "FunctionalityModule": "1.0.0.0"
         },
         "runtime": {
           "OOP_4.dll": {}
@@ -120,6 +121,14 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "FunctionalityModule/1.0.0.0": {
+        "runtime": {
+          "FunctionalityModule.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -200,6 +209,11 @@
       "hashPath": "syncfusion.shared.wpf.25.1.35.nupkg.sha512"
     },
     "BaseShapesClasses/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FunctionalityModule/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
