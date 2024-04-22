@@ -3,6 +3,8 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -87,7 +89,7 @@ public partial class MainForm
         }
         return true;
     }
-    
+
     private void LoadAssemblies(string assembly)
     {
         Assembly pluginAssembly = Assembly.LoadFrom(assembly);
@@ -105,7 +107,7 @@ public partial class MainForm
             }
         }
     }
-    
+
     private void LoadFactories(string path)
     {
         if (path != null)
@@ -136,70 +138,22 @@ public partial class MainForm
 
     private void OpenCurFuncPlugin_Click(object sender, EventArgs e)
     {
-        OpenFileDialog openFileDialog = new()
+        if (_curFunctionality != null)
         {
-            Filter = "XML файлы (*.xml)|*.xml"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            string xml = File.ReadAllText(openFileDialog.FileName);
-            var doc = XDocument.Parse(xml);
-            string json = JsonConvert.SerializeXNode(doc);
-            
-            JToken token = JToken.Parse(json);
-
-            // Создание массива и добавление JSON объекта
-            JArray array = new JArray();
-            array.Add(token);
-
-            // Сериализация массива в строку JSON
-            string jsonArray = array.ToString(Formatting.Indented);
-            
-            var jsonObject = JsonConvert.DeserializeObject<RootShape>(jsonArray);
-            List<SerializedShape> shapes = jsonObject.shapes;
-            string newJson = JsonConvert.SerializeObject(shapes, Formatting.Indented);
-            
-            var settings = new JsonSerializerSettings
+            _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
+            if (_abstractShapes != null)
             {
-                TypeNameHandling = TypeNameHandling.Objects,
-            };
-            _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(newJson, settings);
-            Canvas.Children.Clear();
-            foreach (var shape in _abstractShapes)
-            {
-                shape.Draw(Canvas);
+                Canvas.Children.Clear();
+                foreach (var figure in _abstractShapes)
+                    figure.Draw(Canvas);
             }
         }
     }
-    
-    private static readonly XDeclaration _defaultDeclaration = new("1.0", null, null);
+
     private void SaveCurFuncPlugin_Click(object sender, EventArgs e)
     {
-        //_curFunctionality.SaveToFile(_abstractShapes);
-        CustomJsonSerializer jsonSerializer = new CustomJsonSerializer();
-        var jsonFilePath = jsonSerializer.JsonSerialize(_abstractShapes);
-        if (jsonFilePath != "")
-        {
-            string json = File.ReadAllText(jsonFilePath);
-            if (jsonFilePath.EndsWith(".json"))
-                jsonFilePath = jsonFilePath.Remove(jsonFilePath.Length - 5, 5);
-            string xmlFilePath = jsonFilePath + ".xml";
-
-            List<FunctionalityShapes> shapes = JsonConvert.DeserializeObject<List<FunctionalityShapes>>(json)!;
-            var newObj = new { shapes };
-            string newJson = JsonConvert.SerializeObject(newObj, Formatting.Indented);
-
-            var xml = JsonConvert.DeserializeXNode(newJson)!;
-            var declaration = xml.Declaration ?? _defaultDeclaration;
-            using (FileStream xmlFileStream = new FileStream(xmlFilePath, FileMode.Create))
-            {
-                using (StreamWriter writer = new StreamWriter(xmlFileStream))
-                {
-                    writer.Write(declaration + Environment.NewLine + xml);
-                }
-            }
-            File.Delete(jsonFilePath + ".json");
-        }
+        if (_curFunctionality != null)
+            _curFunctionality.SaveToFile(_abstractShapes);
     }
 
     private void CurFuncPlugin_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -209,6 +163,7 @@ public partial class MainForm
         if (_functionalities.Count > 0)
             _curFunctionality = _functionalities[selectedIndex];
     }
+
     private void LoadFunc_Click(object sender, EventArgs e)
     {
         string path = HandleOpenedFile();
@@ -549,11 +504,13 @@ public partial class MainForm
             }
             var factory = _comboBoxFactories[index];
             var shape = factory.CreateShape(item.ListOfPoints, item.Color);
+            shape.Color = Brushes.Black;
             _abstractShapes.Add(shape);
             shape.CanvasIndex = -1;
             shape.Draw(Canvas);
         }
     }
+
     private void OpenBinary_Click(object sender, EventArgs e)
     {
         OpenFileDialog openFileDialog = new()
@@ -576,9 +533,9 @@ public partial class MainForm
                 }
             }
             catch (Exception)
-            { 
-             MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                             "Вы загрузили не все модули фигур.");
+            {
+                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                                "Вы загрузили не все модули фигур.");
             }
         }
     }
@@ -603,9 +560,9 @@ public partial class MainForm
                 }
             }
             catch (Exception)
-            { 
-             MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                             "Вы загрузили не все модули фигур.");
+            {
+                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                                "Вы загрузили не все модули фигур.");
             }
         }
     }

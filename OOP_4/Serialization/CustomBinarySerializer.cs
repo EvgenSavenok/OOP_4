@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Media;
 using BaseShapesClasses;
 using Microsoft.Win32;
 using OOP_3.Figures;
@@ -21,7 +22,7 @@ public class CustomBinarySerializer
             {
                 xmlShapes.Add(new()
                 {
-                    ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory, FactoryName = shape.ShapeName
+                    ListOfPoints = shape.ListOfPoints, Color = Brushes.Black, NumOfFactory = shape.NumOfFactory, FactoryName = shape.ShapeName
                 });
             }
             if (!saveFileDialog.FileName.EndsWith(".dat"))

@@ -4,6 +4,7 @@ using System.Windows;
 using BaseShapesClasses;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using OOP_3.Figures;
 
 namespace OOP_3.Serialization;
 
