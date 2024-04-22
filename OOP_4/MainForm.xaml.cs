@@ -1,10 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,14 +9,10 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Xml.Linq;
-using System.Xml.Serialization;
-using OOP_3.Figures;
 using Path = System.IO.Path;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using BaseShapesClasses;
-using Newtonsoft.Json.Linq;
+using OOP_3.Deserialization;
 using OOP_3.Functionality;
 using OOP_3.Serialization;
 
@@ -49,6 +41,9 @@ public partial class MainForm
     private CustomJsonSerializer JsonSerializer { get; } = new();
     private CustomXMLSerializer XmlSerializer { get; } = new();
     private CustomBinarySerializer BinarySerializer { get; } = new();
+    private CustomJsonDeserializer JsonDeserializer { get; } = new();
+    private CustomBinaryDeserializer BinaryDeserializer { get; } = new();
+    private CustomXmlDeserializer XmlDeserializer { get; } = new();
 
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -460,111 +455,25 @@ public partial class MainForm
 
     private void OpenJSON_Click(object sender, EventArgs e)
     {
-        OpenFileDialog openFileDialog = new()
+        _abstractShapes = JsonDeserializer.JsonDeserialize(_abstractShapes);
+        if (_abstractShapes != null)
         {
-            Filter = "JSON файлы (*.json)|*.json"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            try
+            Canvas.Children.Clear();
+            foreach (var shape in _abstractShapes)
             {
-                string json = File.ReadAllText(openFileDialog.FileName);
-                var settings = new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Objects,
-                };
-                _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(json, settings);
-                Canvas.Children.Clear();
-                foreach (var shape in _abstractShapes)
-                {
-                    shape.Draw(Canvas);
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
+                shape.Draw(Canvas);
             }
         }
     }
-
-    private void DrawDeserializedFigures(List<SerializedShape> loadedShapes)
-    {
-        foreach (var item in loadedShapes)
-        {
-            string itemName = item.FactoryName;
-            int index = -1;
-            for (int i = 0; i < _comboBoxFactories.Count; i++)
-            {
-                if (_comboBoxFactories[i].GetFactoryName() == itemName)
-                {
-                    index = i;
-                    break;
-                }
-            }
-            var factory = _comboBoxFactories[index];
-            var shape = factory.CreateShape(item.ListOfPoints, item.Color);
-            shape.Color = Brushes.Black;
-            _abstractShapes.Add(shape);
-            shape.CanvasIndex = -1;
-            shape.Draw(Canvas);
-        }
-    }
-
+    
     private void OpenBinary_Click(object sender, EventArgs e)
     {
-        OpenFileDialog openFileDialog = new()
-        {
-            Filter = "Бинарные файлы (*.dat)|*.dat"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            try
-            {
-                using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.Open);
-#pragma warning disable SYSLIB0011
-                BinaryFormatter formatter = new BinaryFormatter();
-#pragma warning restore SYSLIB0011
-                if ((List<SerializedShape>)formatter.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
-                {
-                    _abstractShapes.Clear();
-                    Canvas.Children.Clear();
-                    DrawDeserializedFigures(loadedShapes);
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
-            }
-        }
+        BinaryDeserializer.BinaryDeserialize(_abstractShapes, _comboBoxFactories, Canvas);
     }
 
     private void OpenXML_Click(object sender, EventArgs e)
     {
-        OpenFileDialog openFileDialog = new()
-        {
-            Filter = "XML файлы (*.xml)|*.xml"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
-                using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.OpenOrCreate);
-                if (serializer.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
-                {
-                    _abstractShapes.Clear();
-                    Canvas.Children.Clear();
-                    DrawDeserializedFigures(loadedShapes);
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
-            }
-        }
+        XmlDeserializer.XmlDeserialize(_comboBoxFactories, _abstractShapes, Canvas);
     }
 
     private void SaveToJSON_Click(object sender, EventArgs e)
