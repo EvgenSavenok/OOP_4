@@ -137,46 +137,14 @@ public partial class MainForm
 
     private void OpenCurFuncPlugin_Click(object sender, EventArgs e)
     {
-        // if (_curFunctionality != null)
-        // {
-        //     _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
-        //     if (_abstractShapes != null)
-        //     {
-        //         Canvas.Children.Clear();
-        //         foreach (var figure in _abstractShapes)
-        //             figure.Draw(Canvas);
-        //     }
-        // }
-        var settings = new JsonSerializerSettings
+        if (_curFunctionality != null)
         {
-            Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.Objects
-        };
-        OpenFileDialog openFileDialog = new()
-        {
-            Filter = "XML файлы (*.xml)|*.xml"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            string xml = File.ReadAllText(openFileDialog.FileName);
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml);
-            string jsonText = JsonConvert.SerializeXmlNode(doc);
-            string jsonStartFormatStr = "\"shapes\":{\"shapes\":[{";
-            string jsonEndingFormatStr = "]}}";
-            int index = jsonText.IndexOf(jsonStartFormatStr);
-            jsonText = jsonText.Remove(index, jsonStartFormatStr.Length);
-            index = jsonText.IndexOf(jsonEndingFormatStr);
-            jsonText = jsonText.Remove(index, jsonEndingFormatStr.Length);
-            jsonText = "[" + jsonText + "]";
-            _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(jsonText, settings);
+            _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
             if (_abstractShapes != null)
             {
                 Canvas.Children.Clear();
-                foreach (var shape in _abstractShapes)
-                {
-                    shape.Draw(Canvas);
-                }
+                foreach (var figure in _abstractShapes)
+                    figure.Draw(Canvas);
             }
         }
     }
@@ -185,19 +153,6 @@ public partial class MainForm
     {
         if (_curFunctionality != null)
             _curFunctionality.SaveToFile(_abstractShapes);
-        // CustomJsonSerializer jsonSerializer = new CustomJsonSerializer();
-        // var jsonFilePath = jsonSerializer.JsonSerialize(_abstractShapes);
-        // if (jsonFilePath != "")
-        // {
-        //     string json = File.ReadAllText(jsonFilePath);
-        //     if (jsonFilePath.EndsWith(".json"))
-        //         jsonFilePath = jsonFilePath.Remove(jsonFilePath.Length - 5, 5);
-        //     string xmlFilePath = jsonFilePath + ".xml";
-        //     json = "{\n   \"shapes\": [" + json + "   \n]\n}";
-        //     XmlDocument doc = JsonConvert.DeserializeXmlNode(json);
-        //     doc.Save(xmlFilePath);
-        //     File.Delete(jsonFilePath + ".json");
-        // }
     }
 
     private void CurFuncPlugin_SelectionChanged(object sender, SelectionChangedEventArgs e)
