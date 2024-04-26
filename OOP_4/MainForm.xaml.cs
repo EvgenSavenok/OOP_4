@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -9,12 +10,15 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml;
 using Path = System.IO.Path;
 using Microsoft.Win32;
 using BaseShapesClasses;
+using Newtonsoft.Json;
 using OOP_3.Deserialization;
 using OOP_3.Functionality;
 using OOP_3.Serialization;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace OOP_3;
 
@@ -133,14 +137,46 @@ public partial class MainForm
 
     private void OpenCurFuncPlugin_Click(object sender, EventArgs e)
     {
-        if (_curFunctionality != null)
+        // if (_curFunctionality != null)
+        // {
+        //     _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
+        //     if (_abstractShapes != null)
+        //     {
+        //         Canvas.Children.Clear();
+        //         foreach (var figure in _abstractShapes)
+        //             figure.Draw(Canvas);
+        //     }
+        // }
+        var settings = new JsonSerializerSettings
         {
-            _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
+            Formatting = Formatting.Indented,
+            TypeNameHandling = TypeNameHandling.Objects
+        };
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "XML файлы (*.xml)|*.xml"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            string xml = File.ReadAllText(openFileDialog.FileName);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xml);
+            string jsonText = JsonConvert.SerializeXmlNode(doc);
+            string jsonStartFormatStr = "\"shapes\":{\"shapes\":[{";
+            string jsonEndingFormatStr = "]}}";
+            int index = jsonText.IndexOf(jsonStartFormatStr);
+            jsonText = jsonText.Remove(index, jsonStartFormatStr.Length);
+            index = jsonText.IndexOf(jsonEndingFormatStr);
+            jsonText = jsonText.Remove(index, jsonEndingFormatStr.Length);
+            jsonText = "[" + jsonText + "]";
+            _abstractShapes = JsonConvert.DeserializeObject<List<AbstractShape>>(jsonText, settings);
             if (_abstractShapes != null)
             {
                 Canvas.Children.Clear();
-                foreach (var figure in _abstractShapes)
-                    figure.Draw(Canvas);
+                foreach (var shape in _abstractShapes)
+                {
+                    shape.Draw(Canvas);
+                }
             }
         }
     }
@@ -149,6 +185,19 @@ public partial class MainForm
     {
         if (_curFunctionality != null)
             _curFunctionality.SaveToFile(_abstractShapes);
+        // CustomJsonSerializer jsonSerializer = new CustomJsonSerializer();
+        // var jsonFilePath = jsonSerializer.JsonSerialize(_abstractShapes);
+        // if (jsonFilePath != "")
+        // {
+        //     string json = File.ReadAllText(jsonFilePath);
+        //     if (jsonFilePath.EndsWith(".json"))
+        //         jsonFilePath = jsonFilePath.Remove(jsonFilePath.Length - 5, 5);
+        //     string xmlFilePath = jsonFilePath + ".xml";
+        //     json = "{\n   \"shapes\": [" + json + "   \n]\n}";
+        //     XmlDocument doc = JsonConvert.DeserializeXmlNode(json);
+        //     doc.Save(xmlFilePath);
+        //     File.Delete(jsonFilePath + ".json");
+        // }
     }
 
     private void CurFuncPlugin_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -158,7 +207,7 @@ public partial class MainForm
         if (_functionalities.Count > 0)
             _curFunctionality = _functionalities[selectedIndex];
     }
-
+    
     private void LoadFunc_Click(object sender, EventArgs e)
     {
         string path = HandleOpenedFile();

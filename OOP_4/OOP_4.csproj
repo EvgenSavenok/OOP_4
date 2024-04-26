@@ -29,4 +29,8 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Functionality\IFunctionality.cs" />
+    </ItemGroup>
+
 </Project>
