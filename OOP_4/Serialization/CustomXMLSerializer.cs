@@ -10,7 +10,7 @@ namespace OOP_3.Serialization;
 
 public class CustomXMLSerializer
 {
-    public void XmlSerialize(List<AbstractShape> _abstractShapes)
+    public string XmlSerialize(List<AbstractShape> _abstractShapes)
     {
         SaveFileDialog saveFileDialog = new()
         {
@@ -28,7 +28,9 @@ public class CustomXMLSerializer
                 {
                     xmlShapes.Add(new()
                     {
-                        ListOfPoints = shape.ListOfPoints, Color = shape.Color, NumOfFactory = shape.NumOfFactory, FactoryName = shape.ShapeName
+                        ListOfPoints = shape.ListOfPoints, Color = shape.Color, 
+                        NumOfFactory = shape.NumOfFactory, FactoryName = shape.ShapeName,
+                        TagShape = shape.NumOfFactory
                     });
                 }
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<SerializedShape>));
@@ -39,5 +41,6 @@ public class CustomXMLSerializer
                 MessageBox.Show("Ошибка номер 52 при сохранении файла.");
             }
         }
+        return saveFileDialog.FileName;
     }
 }

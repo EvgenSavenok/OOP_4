@@ -22,7 +22,8 @@ public class CustomBinarySerializer
             {
                 xmlShapes.Add(new()
                 {
-                    ListOfPoints = shape.ListOfPoints, Color = Brushes.Black, NumOfFactory = shape.NumOfFactory, FactoryName = shape.ShapeName
+                    ListOfPoints = shape.ListOfPoints, Color = Brushes.Black, NumOfFactory = shape.NumOfFactory, 
+                    FactoryName = shape.ShapeName, TagShape = shape.NumOfFactory
                 });
             }
             if (!saveFileDialog.FileName.EndsWith(".dat"))

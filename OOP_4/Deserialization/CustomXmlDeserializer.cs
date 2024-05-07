@@ -10,31 +10,31 @@ namespace OOP_3.Deserialization;
 
 public class CustomXmlDeserializer
 {
-    private DeserializationDrawer DeserializationDrawer { get; } = new();
-    public void XmlDeserialize(Dictionary<int, IShapeFactory> comboBoxFactories, List<AbstractShape> abstractShapes, Canvas canvas)
+    public List<AbstractShape> XmlDeserialize(Dictionary<int, IShapeFactory> comboBoxFactories, Stream stream)
     {
-        OpenFileDialog openFileDialog = new()
+        List<AbstractShape> abstractShapes = new();
+        try
         {
-            Filter = "XML файлы (*.xml)|*.xml"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            try
+            XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
+            if (serializer.Deserialize(stream) is List<SerializedShape> { Count: not 0 } loadedShapes)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
-                using FileStream fs = new FileStream(openFileDialog.FileName, FileMode.OpenOrCreate);
-                if (serializer.Deserialize(fs) is List<SerializedShape> { Count: not 0 } loadedShapes)
+                foreach (var item in loadedShapes)
                 {
-                    abstractShapes.Clear();
-                    canvas.Children.Clear();
-                    DeserializationDrawer.DrawDeserializedFigures(loadedShapes, comboBoxFactories, abstractShapes, canvas);
+                    //comboBoxFactories[0].
+                    if (comboBoxFactories.TryGetValue(item.TagShape, out var factory))
+                    {
+                        var shape = factory.CreateShape(item.ListOfPoints, item.Color);
+                        abstractShapes.Add(shape);
+                    }
                 }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
-                                "Вы загрузили не все модули фигур.");
+                return abstractShapes;
             }
         }
+        catch (Exception)
+        {
+            MessageBox.Show("Ошибка номер 52 при открытии файла. Возможно, " +
+                            "Вы загрузили не все модули фигур.");
+        }
+        return null;
     }
 }

@@ -100,7 +100,7 @@
             </ComboBox>
         </Grid>
         <Border Grid.Row = "2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
-            <Canvas x:Name = "Canvas"
+            <Canvas x:Name = "MyCanvas"
                     MouseDown="Canvas_MouseDown"
                     MouseMove="Canvas_MouseMove"
                     KeyUp="Canvas_KeyDown"

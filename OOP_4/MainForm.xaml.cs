@@ -10,15 +10,13 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Xml;
 using Path = System.IO.Path;
 using Microsoft.Win32;
 using BaseShapesClasses;
-using Newtonsoft.Json;
 using OOP_3.Deserialization;
+using OOP_3.Figures;
 using OOP_3.Functionality;
 using OOP_3.Serialization;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace OOP_3;
 
@@ -48,6 +46,9 @@ public partial class MainForm
     private CustomJsonDeserializer JsonDeserializer { get; } = new();
     private CustomBinaryDeserializer BinaryDeserializer { get; } = new();
     private CustomXmlDeserializer XmlDeserializer { get; } = new();
+    
+    private DeserializationDrawer DeserializationDrawer { get; } = new();
+    public Canvas PublicMyCanvas { get; set; }
 
     [DllImport("user32.dll")]
     private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -68,11 +69,12 @@ public partial class MainForm
         var uri = new Uri(path);
         var bitmap = new BitmapImage(uri);
         Icon = bitmap;
-        Canvas.Focus();
+        MyCanvas.Focus();
     }
 
     private void InitializeCanvas()
     {
+        PublicMyCanvas = MyCanvas;
         _isCursorSelected = true;
         _curColor = Brushes.Black;
         ShapesCb.ItemsSource = _comboBoxItems;
@@ -140,11 +142,12 @@ public partial class MainForm
         if (_curFunctionality != null)
         {
             _abstractShapes = _curFunctionality.LoadFile(_abstractShapes, _comboBoxFactories);
+            //DeserializationDrawer.DrawDeserializedFigures(_abstractShapes, _comboBoxFactories, _abstractShapes, PublicMyCanvas);
             if (_abstractShapes != null)
             {
-                Canvas.Children.Clear();
+                MyCanvas.Children.Clear();
                 foreach (var figure in _abstractShapes)
-                    figure.Draw(Canvas);
+                    figure.Draw(MyCanvas);
             }
         }
     }
@@ -167,7 +170,7 @@ public partial class MainForm
     {
         string path = HandleOpenedFile();
         var functionality = FuncLoader.LoadNewFunctionality(path);
-        if (functionality != null)
+        if (functionality != null && !_comboBoxFunctionalities.Contains(functionality.GetName))
         {
             _functionalities.Add(_functionalities.Count, functionality);
             _comboBoxFunctionalities.Add(functionality.GetName);
@@ -185,7 +188,7 @@ public partial class MainForm
     private AbstractShape DrawShape()
     {
         var shape = _curFactory.CreateShape(new List<Point>(_listOfPoints), _curColor);
-        shape.Draw(Canvas);
+        shape.Draw(MyCanvas);
         return shape;
     }
 
@@ -196,9 +199,9 @@ public partial class MainForm
             if (_abstractShapes.Count > 0)
             {
                 int tag = (int)_selectedShape.Tag;
-                for (int i = tag + 1; i < Canvas.Children.Count; i++)
+                for (int i = tag + 1; i < MyCanvas.Children.Count; i++)
                 {
-                    if (Canvas.Children[i] is Shape item)
+                    if (MyCanvas.Children[i] is Shape item)
                     {
                         int tagTemp = (int)item.Tag;
                         item.Tag = --tagTemp;
@@ -207,7 +210,7 @@ public partial class MainForm
                 for (int i = tag + 1; i < _abstractShapes.Count; i++)
                     _abstractShapes[i].CanvasIndex--;
                 _abstractShapes.RemoveAt(tag);
-                Canvas.Children.RemoveAt(tag);
+                MyCanvas.Children.RemoveAt(tag);
             }
         }
     }
@@ -229,7 +232,7 @@ public partial class MainForm
                 Color = Colors.DarkRed
             };
             selectedShape.Effect = shadowEffect;
-            foreach (var child in Canvas.Children)
+            foreach (var child in MyCanvas.Children)
             {
                 if (child is Shape shape && shape != selectedShape && shape.Effect != null)
                     shape.Effect = null;
@@ -243,9 +246,9 @@ public partial class MainForm
         if (_isCursorSelected && (e is { OriginalSource: Shape shape }))
         {
             int tag = (int)shape.Tag;
-            for (int i = tag; i < Canvas.Children.Count; i++)
+            for (int i = tag; i < MyCanvas.Children.Count; i++)
             {
-                if (Canvas.Children[i] is Shape)
+                if (MyCanvas.Children[i] is Shape)
                 {
                     _selectedShape = shape;
                     SelectShape(shape);
@@ -284,7 +287,7 @@ public partial class MainForm
 
     private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        Canvas.Focus();
+        MyCanvas.Focus();
         CheckLeftBtn(sender, e);
         CheckRightBtn(e);
     }
@@ -371,7 +374,7 @@ public partial class MainForm
             movingShapeCoordinates[i] = new Point(point.X + deltaX, point.Y + deltaY);
         }
         movingShape.ListOfPoints = movingShapeCoordinates;
-        movingShape.Draw(Canvas);
+        movingShape.Draw(MyCanvas);
         _previousMousePosition = currentMousePosition;
     }
 
@@ -394,7 +397,7 @@ public partial class MainForm
             int tag = (int)_selectedShape.Tag;
             var shape = _abstractShapes[tag];
             shape.Color = _curColor;
-            shape.Draw(Canvas);
+            shape.Draw(MyCanvas);
         }
     }
 
@@ -408,7 +411,7 @@ public partial class MainForm
 
     private void ClearBtn_Click(object sender, RoutedEventArgs e)
     {
-        Canvas.Children.Clear();
+        MyCanvas.Children.Clear();
         _listOfPoints.Clear();
         _abstractShapes.Clear();
     }
@@ -462,22 +465,39 @@ public partial class MainForm
         _abstractShapes = JsonDeserializer.JsonDeserialize(_abstractShapes);
         if (_abstractShapes != null)
         {
-            Canvas.Children.Clear();
+            MyCanvas.Children.Clear();
             foreach (var shape in _abstractShapes)
             {
-                shape.Draw(Canvas);
+                shape.Draw(MyCanvas);
             }
         }
     }
     
     private void OpenBinary_Click(object sender, EventArgs e)
     {
-        BinaryDeserializer.BinaryDeserialize(_abstractShapes, _comboBoxFactories, Canvas);
+        BinaryDeserializer.BinaryDeserialize(_abstractShapes, _comboBoxFactories, MyCanvas);
     }
 
     private void OpenXML_Click(object sender, EventArgs e)
     {
-        XmlDeserializer.XmlDeserialize(_comboBoxFactories, _abstractShapes, Canvas);
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = "XML файлы (*.xml)|*.xml"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            using FileStream stream = new FileStream(openFileDialog.FileName, FileMode.Open);
+            _abstractShapes = XmlDeserializer.XmlDeserialize(_comboBoxFactories, stream);
+        }
+        //DeserializationDrawer.DrawDeserializedFigures(_comboBoxFactories, _abstractShapes, MyCanvas);
+        if (_abstractShapes != null)
+        {
+            MyCanvas.Children.Clear();
+            foreach (var shape in _abstractShapes)
+            {
+                shape.Draw(MyCanvas);
+            }
+        }
     }
 
     private void SaveToJSON_Click(object sender, EventArgs e)

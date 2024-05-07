@@ -22,7 +22,4 @@ public class FunctionalityLoader
         }
         return null;
     }
-    // XmlDocument doc = new XmlDocument();
-    // doc.LoadXml(xml);
-    // string jsonText = JsonConvert.SerializeXmlNode(doc);
 }

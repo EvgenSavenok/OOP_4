@@ -14,4 +14,5 @@ public class SerializedShape
     public Brush Color;
     public int NumOfFactory { get; set; }
     public string FactoryName { get; set; }
+    public int TagShape { get; set; }
 }
