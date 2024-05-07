@@ -18,13 +18,18 @@ public class CustomXmlDeserializer
             XmlSerializer serializer = new XmlSerializer(typeof(List<SerializedShape>));
             if (serializer.Deserialize(stream) is List<SerializedShape> { Count: not 0 } loadedShapes)
             {
-                foreach (var item in loadedShapes)
+                for (int i = loadedShapes.Count - 1; i >= 0; i--)
                 {
-                    //comboBoxFactories[0].
-                    if (comboBoxFactories.TryGetValue(item.TagShape, out var factory))
+                    var item = loadedShapes[i];
+                    for (int j = 0; j < comboBoxFactories.Count; j++)
                     {
-                        var shape = factory.CreateShape(item.ListOfPoints, item.Color);
-                        abstractShapes.Add(shape);
+                        if (comboBoxFactories[j].GetFactoryNum() == item.TagShape)
+                        {
+                            comboBoxFactories.TryGetValue(j, out var factory);
+                            var shape = factory.CreateShape(item.ListOfPoints, loadedShapes[i].Color);
+                            abstractShapes.Add(shape);
+                            loadedShapes.RemoveAt(i);
+                        }
                     }
                 }
                 return abstractShapes;
