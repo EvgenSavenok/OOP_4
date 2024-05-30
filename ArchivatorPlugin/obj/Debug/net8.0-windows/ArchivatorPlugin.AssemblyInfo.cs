@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArchivatorPlugin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7606c3e3a35636ba5ca8e2ba9ca8ceb82565e327")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f88d24b07b9d8f02bd6f276d8967290692df224")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArchivatorPlugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArchivatorPlugin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
